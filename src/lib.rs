@@ -4,7 +4,11 @@ use std::{
     time::{Duration, Instant},
 };
 
-use egui::{self, emath::TSTransform, Ui, Vec2};
+use egui::{
+    self,
+    emath::{easing, TSTransform},
+    Ui, Vec2,
+};
 
 #[non_exhaustive]
 pub enum TransitionAnimationType {
@@ -70,7 +74,24 @@ impl<Page: Display, Ret> PagerRet<Page, Ret> {
     }
 }
 
-pub fn animated_pager<Page: Default + Sync + Send + Clone + 'static + Eq, Ret>(
+pub fn animated_pager<Page: Default + Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
+    ui: &mut Ui,
+    target_page: Page,
+    animation_type: TransitionAnimationType,
+    id: egui::Id,
+    add_contents: impl FnMut(&mut Ui, Page) -> Ret,
+) -> PagerRet<Page, Ret> {
+    animated_pager_advanced(
+        ui,
+        target_page,
+        easing::circular_in_out,
+        animation_type,
+        id,
+        add_contents,
+    )
+}
+
+pub fn animated_pager_advanced<Page: Default + Sync + Send + Clone + 'static + Eq, Ret>(
     ui: &mut Ui,
     target_page: Page,
     easing: impl Fn(f32) -> f32,

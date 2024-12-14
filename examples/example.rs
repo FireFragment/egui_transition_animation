@@ -50,7 +50,6 @@ impl eframe::App for MyApp {
             let state_s = egui_transition::animated_pager(
                 ui,
                 page,
-                easing::circular_in_out,
                 egui_transition::TransitionAnimationType::VerticalMove,
                 egui::Id::new("pager"),
                 |ui: &mut Ui, page| match page {
