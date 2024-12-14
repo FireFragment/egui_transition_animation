@@ -44,7 +44,6 @@ impl eframe::App for MyApp {
 
         let mut state = None;
         egui::CentralPanel::default().show(ctx, |ui| {
-            //let page_2 = ;
             let page = self.page;
 
             let state_s = egui_transition::animated_pager(
