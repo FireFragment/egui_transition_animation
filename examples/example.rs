@@ -13,7 +13,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "My egui App",
+        "Egui transition demo",
         options,
         Box::new(|_| Ok(Box::<MyApp>::default())),
     )
