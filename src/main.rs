@@ -51,9 +51,6 @@ fn combine_easings<'a>(
 
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        let fps = 60;
-        let time = ctx.cumulative_pass_nr() * (120 / fps);
-
         ctx.style_mut(|style| {
             style.animation_time = 0.3;
         });
@@ -90,15 +87,6 @@ impl eframe::App for MyApp {
                     }
                 },
             );
-
-            //std::thread::sleep(Duration::from_millis(1000 / fps));
-        });
-
-        egui::TopBottomPanel::bottom("b").show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                ui.label("Frame ");
-                ui.label(time.to_string());
-            });
         });
     }
 }
