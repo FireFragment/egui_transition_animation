@@ -30,6 +30,7 @@ pub fn page_transition<T>(
     t: f32,
     easing: impl Fn(f32) -> f32,
     animation_type: TransitionAnimationType,
+    invert_direction: bool,
     add_contents: impl FnOnce(&mut Ui, bool) -> T,
 ) -> T {
     let dist = 16.0;
@@ -40,7 +41,7 @@ pub fn page_transition<T>(
         -dist * anim_state * 2.
     } else {
         dist + -dist * (2. * anim_state - 1.)
-    };
+    } * if invert_direction { 1. } else { -1. };
 
     ui.with_visual_transform(
         animation_type.into_tstransform(offset_size, Vec2::new(32.0, 32.)),
@@ -87,6 +88,7 @@ pub fn animated_pager<Page: Default + Sync + Send + Clone + 'static + Eq + Parti
         easing::circular_in_out,
         animation_type,
         id,
+        |original_page, new_page| original_page < new_page,
         add_contents,
     )
 }
@@ -97,6 +99,7 @@ pub fn animated_pager_advanced<Page: Default + Sync + Send + Clone + 'static + E
     easing: impl Fn(f32) -> f32,
     animation_type: TransitionAnimationType,
     id: egui::Id,
+    invert_direction: impl FnOnce(&Page, &Page) -> bool,
     add_contents: impl FnOnce(&mut Ui, Page) -> Ret,
 ) -> PagerRet<Page, Ret> {
     let animation_length = ui.style().animation_time;
@@ -142,6 +145,7 @@ pub fn animated_pager_advanced<Page: Default + Sync + Send + Clone + 'static + E
             current_animation_state,
             easing,
             animation_type,
+            invert_direction(&prev_page, &target_page),
             |ui, show_second_page| {
                 let show_page = if show_second_page {
                     target_page.clone()
