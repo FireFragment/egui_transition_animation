@@ -1,10 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 #![allow(rustdoc::missing_crate_level_docs)] // it's an example
 
-use eframe::{
-    egui::{self, Ui},
-    emath::easing,
-};
+use eframe::egui::{self, Ui};
 
 fn main() -> eframe::Result {
     env_logger::init();
@@ -20,10 +17,17 @@ fn main() -> eframe::Result {
     )
 }
 
+#[derive(Debug, Eq, PartialEq, PartialOrd, Clone)]
+enum Page {
+    Page1,
+    Page2,
+    Page3,
+}
+
 struct MyApp {
     name: String,
     age: u32,
-    page: bool,
+    page: Page,
 }
 
 impl Default for MyApp {
@@ -31,7 +35,7 @@ impl Default for MyApp {
         Self {
             name: "Arthur".to_owned(),
             age: 42,
-            page: false,
+            page: Page::Page1,
         }
     }
 }
@@ -44,16 +48,19 @@ impl eframe::App for MyApp {
 
         let mut state = None;
         egui::CentralPanel::default().show(ctx, |ui| {
-            let page = self.page;
+            ui.horizontal(|ui| {
+                ui.selectable_value(&mut self.page, Page::Page1, "Home");
+                ui.selectable_value(&mut self.page, Page::Page2, "Page 2");
+                ui.selectable_value(&mut self.page, Page::Page3, "Page 3");
+            });
 
-            ui.heading("Egui transition demo");
             let state_s = egui_transition::animated_pager(
                 ui,
-                page,
-                egui_transition::TransitionAnimationType::VerticalMove,
+                self.page.clone(),
+                egui_transition::TransitionAnimationType::HorizontalMove,
                 egui::Id::new("pager"),
                 |ui: &mut Ui, page| match page {
-                    false => {
+                    Page::Page1 => {
                         ui.heading("Page 1");
                         ui.horizontal(|ui| {
                             let name_label = ui.label("Your name: ");
@@ -65,16 +72,12 @@ impl eframe::App for MyApp {
                             self.age += 1;
                         }
                         ui.label(format!("Hello '{}', age {}", self.name, self.age));
-
-                        if ui.button("Switch to page 2").clicked() {
-                            self.page = true;
-                        }
                     }
-                    true => {
+                    Page::Page2 => {
                         ui.label("Hello from the second page");
-                        if ui.button("Switch to page 1").clicked() {
-                            self.page = false;
-                        }
+                    }
+                    Page::Page3 => {
+                        ui.label("Hello from the third page");
                     }
                 },
             );

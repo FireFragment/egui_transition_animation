@@ -1,5 +1,5 @@
 use std::{
-    fmt::Display,
+    fmt::{self, Display},
     hash::Hash,
     time::{Duration, Instant},
 };
@@ -56,7 +56,7 @@ pub struct PagerRet<Page, Ret> {
     pub animation_running: bool,
 }
 
-impl<Page: Display, Ret> PagerRet<Page, Ret> {
+impl<Page: fmt::Debug, Ret> PagerRet<Page, Ret> {
     /// Omits the `ui_ret` field
     pub fn show(&self, id: impl Hash, ui: &mut Ui) {
         egui::Grid::new(id).num_columns(2).show(ui, |ui| {
@@ -66,7 +66,7 @@ impl<Page: Display, Ret> PagerRet<Page, Ret> {
     /// Omits the `ui_ret` field
     pub fn show_in_grid(&self, ui: &mut Ui) {
         ui.strong("Real page: ");
-        ui.monospace(self.real_page.to_string());
+        ui.monospace(format!("{:?}", self.real_page));
         ui.end_row();
 
         ui.strong("Animation running: ");
