@@ -144,6 +144,7 @@ impl eframe::App for MyApp {
 
                                     ui.add_space(8.0);
 
+                                    ui.strong("Learn more: ");
                                     if ui.link(" GitHub").clicked() {
                                         ctx.open_url(egui::OpenUrl {
                                             url: String::from("https://github.com/FireFragment/egui_page_transition"),
