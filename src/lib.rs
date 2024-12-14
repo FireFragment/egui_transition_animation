@@ -10,14 +10,6 @@ use egui::{self, emath::TSTransform, Ui, Vec2};
 pub enum TransitionAnimationType {
     HorizontalMove,
     VerticalMove,
-    Scale,
-}
-
-fn tstransform_scale_center(scaling: f32, origin: Vec2) -> TSTransform {
-    TSTransform {
-        scaling,
-        translation: origin * (1. - scaling),
-    }
 }
 
 impl TransitionAnimationType {
@@ -25,7 +17,6 @@ impl TransitionAnimationType {
         match self {
             Self::HorizontalMove => TSTransform::from_translation(Vec2::new(amount, 0.)),
             Self::VerticalMove => TSTransform::from_translation(Vec2::new(0., amount)),
-            Self::Scale => tstransform_scale_center(1. - amount / 96., Vec2::new(32.0, 32.0)),
         }
     }
 }
