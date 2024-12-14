@@ -65,7 +65,7 @@ impl<Page: fmt::Debug, Ret> PagerRet<Page, Ret> {
     }
     /// Omits the `ui_ret` field
     pub fn show_in_grid(&self, ui: &mut Ui) {
-        ui.strong("Real page: ");
+        ui.strong("Real page: ").on_hover_text("The page that is currently actually shown. May be different from the \"target\" page when there's animation running");
         ui.monospace(format!("{:?}", self.real_page));
         ui.end_row();
 

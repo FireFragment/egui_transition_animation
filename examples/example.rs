@@ -2,7 +2,7 @@
 #![allow(rustdoc::missing_crate_level_docs)] // it's an example
 
 use eframe::egui::{self, Ui};
-use egui::{Layout, SelectableLabel};
+use egui::{Layout, SelectableLabel, Vec2};
 use egui_transition::TransitionType;
 
 fn main() -> eframe::Result {
@@ -21,9 +21,9 @@ fn main() -> eframe::Result {
 
 #[derive(Debug, Eq, PartialEq, PartialOrd, Clone)]
 enum Page {
-    Home,
-    Configure,
     About,
+    Configure,
+    Example,
 }
 
 struct MyApp {
@@ -43,7 +43,7 @@ impl Default for MyApp {
 
             transition_type: TransitionType::HorizontalMove,
             animation_time: 0.3,
-            page: Page::Home,
+            page: Page::About,
         }
     }
 }
@@ -76,9 +76,9 @@ impl eframe::App for MyApp {
                                 ui.set_max_width(128.0);
                             }
 
-                            ui.selectable_value(&mut self.page, Page::Home, "🏠 Home");
-                            ui.selectable_value(&mut self.page, Page::Configure, "⛭ Configure");
                             ui.selectable_value(&mut self.page, Page::About, "ℹ About");
+                            ui.selectable_value(&mut self.page, Page::Configure, "⛭ Configure");
+                            ui.selectable_value(&mut self.page, Page::Example, "☺ Example tab");
                         },
                     );
                     ui.vertical(|ui| {
@@ -88,8 +88,9 @@ impl eframe::App for MyApp {
                             self.transition_type.clone(),
                             egui::Id::new("pager"),
                             |ui: &mut Ui, page| match page {
-                                Page::Home => {
-                                    ui.heading("Home");
+                                Page::Example => {
+                                    ui.heading("Example page");
+
                                     ui.horizontal(|ui| {
                                         let name_label = ui.label("Your name: ");
                                         ui.text_edit_singleline(&mut self.name)
@@ -126,7 +127,29 @@ impl eframe::App for MyApp {
                                 }
                                 Page::About => {
                                     ui.heading("About");
-                                    ui.label("Lorem ipsum sir dolor amet");
+                                    ui.horizontal_wrapped(|ui| {
+                                        ui.style_mut().spacing.item_spacing = Vec2::new(0.0, 0.0);
+
+                                        ui.label("Welcome to the ");
+                                        ui.monospace("egui_page_transition");
+                                        ui.label(" demo. See the transitions by switching tabs in the bar above or click this button to ");
+                                        if ui.small_button("Go to the Example tab").clicked() {
+                                            self.page = Page::Example;
+                                        };
+                                        ui.label(". Animation speed has been decreased to let you see the transitions better. You can customize it in ");
+                                        if ui.link("the Configure tab").clicked() {
+                                            self.page = Page::Configure;
+                                        }
+                                    });
+
+                                    ui.add_space(8.0);
+
+                                    if ui.link(" GitHub").clicked() {
+                                        ctx.open_url(egui::OpenUrl {
+                                            url: String::from("https://github.com/FireFragment/egui_page_transition"),
+                                            new_tab: true
+                                        });
+                                    }
                                 }
                             },
                         );
