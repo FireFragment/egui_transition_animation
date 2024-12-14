@@ -59,9 +59,9 @@
           paths = [ cargoNix.rootCrate.build ];
           buildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
-            wrapProgram $out/bin/egui_transition \
+            wrapProgram $out/bin/egui_page_transition \
               --suffix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath eguiLibs}
-              mv $out/bin/egui_transition $out/bin/egui_transition_example
+              mv $out/bin/egui_page_transition $out/bin/egui_transition_example
           '';
           };*/
         #;

@@ -3,7 +3,7 @@
 
 use eframe::egui::{self, Ui};
 use egui::{Layout, SelectableLabel, Vec2};
-use egui_transition::TransitionType;
+use egui_page_transition::{animated_pager, TransitionType};
 
 fn main() -> eframe::Result {
     env_logger::init();
@@ -13,7 +13,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "Egui transition demo",
+        "Egui page transition demo",
         options,
         Box::new(|_| Ok(Box::<MyApp>::default())),
     )
@@ -82,7 +82,7 @@ impl eframe::App for MyApp {
                         },
                     );
                     ui.vertical(|ui| {
-                        let state_s = egui_transition::animated_pager(
+                        let state_s = animated_pager(
                             ui,
                             self.page.clone(),
                             self.transition_type.clone(),
@@ -131,7 +131,7 @@ impl eframe::App for MyApp {
                                         ui.style_mut().spacing.item_spacing = Vec2::new(0.0, 0.0);
 
                                         ui.label("Welcome to the ");
-                                        ui.monospace("egui_page_transition");
+                                        ui.monospace(env!("CARGO_PKG_NAME"));
                                         ui.label(" demo. See the transitions by switching tabs in the bar above or click this button to ");
                                         if ui.small_button("Go to the Example tab").clicked() {
                                             self.page = Page::Example;

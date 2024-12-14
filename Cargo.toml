@@ -1,5 +1,5 @@
 [package]
-name = "egui_transition"
+name = "egui_page_transition"
 version = "0.1.0"
 edition = "2021"
 
