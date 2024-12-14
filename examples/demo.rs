@@ -3,7 +3,7 @@
 
 use eframe::egui::{self, Ui};
 use egui::{Layout, SelectableLabel, Vec2};
-use egui_page_transition::{animated_pager, TransitionStyle, TransitionType};
+use egui_page_transition::prelude::*;
 
 fn main() -> eframe::Result {
     env_logger::init();
