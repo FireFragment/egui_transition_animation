@@ -1,5 +1,5 @@
 {
-  description = "Rust broker-v2 dev environment";
+  description = "Egui transition";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
