@@ -46,10 +46,12 @@ impl eframe::App for MyApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             let page = self.page;
 
+            ui.heading("Egui transition demo");
             let state_s = egui_transition::animated_pager(
                 ui,
                 page,
                 easing::circular_in_out,
+                egui_transition::TransitionAnimationType::VerticalMove,
                 egui::Id::new("pager"),
                 |ui: &mut Ui, page| match page {
                     false => {

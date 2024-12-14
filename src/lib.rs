@@ -4,26 +4,54 @@ use std::{
     time::{Duration, Instant},
 };
 
-use egui::{self, Ui};
+use egui::{self, emath::TSTransform, Ui, Vec2};
+
+#[non_exhaustive]
+pub enum TransitionAnimationType {
+    HorizontalMove,
+    VerticalMove,
+    Scale,
+}
+
+fn tstransform_scale_center(scaling: f32, origin: Vec2) -> TSTransform {
+    TSTransform {
+        scaling,
+        translation: origin * (1. - scaling),
+    }
+}
+
+impl TransitionAnimationType {
+    fn into_tstransform(&self, amount: f32, origin: Vec2) -> TSTransform {
+        match self {
+            Self::HorizontalMove => TSTransform::from_translation(Vec2::new(amount, 0.)),
+            Self::VerticalMove => TSTransform::from_translation(Vec2::new(0., amount)),
+            Self::Scale => tstransform_scale_center(1. - amount / 96., Vec2::new(32.0, 32.0)),
+        }
+    }
+}
 
 pub fn page_transition<T>(
     ui: &mut Ui,
     t: f32,
     easing: impl Fn(f32) -> f32,
+    animation_type: TransitionAnimationType,
     add_contents: impl FnOnce(&mut Ui, bool) -> T,
 ) -> T {
     let dist = 16.0;
     let anim_state = easing(t);
-    if anim_state <= 0.5 {
-        let space = -dist * anim_state * 2.;
-        ui.add_space(space);
-        add_contents(ui, false)
+    let first_stage = anim_state <= 0.5;
+
+    let offset_size = if first_stage {
+        -dist * anim_state * 2.
     } else {
-        let tf = 2. * anim_state - 1.;
-        let space = dist + -dist * tf;
-        ui.add_space(space);
-        add_contents(ui, true)
-    }
+        dist + -dist * (2. * anim_state - 1.)
+    };
+
+    ui.with_visual_transform(
+        animation_type.into_tstransform(offset_size, Vec2::new(32.0, 32.)),
+        |ui| add_contents(ui, !first_stage),
+    )
+    .inner
 }
 
 pub struct PagerRet<Page, Ret> {
@@ -55,6 +83,7 @@ pub fn animated_pager<Page: Default + Sync + Send + Clone + 'static + Eq, Ret>(
     ui: &mut Ui,
     target_page: Page,
     easing: impl Fn(f32) -> f32,
+    animation_type: TransitionAnimationType,
     id: egui::Id,
     mut add_contents: impl FnMut(&mut Ui, Page) -> Ret,
 ) -> PagerRet<Page, Ret> {
@@ -100,6 +129,7 @@ pub fn animated_pager<Page: Default + Sync + Send + Clone + 'static + Eq, Ret>(
             ui,
             current_animation_state,
             easing,
+            animation_type,
             |ui, show_second_page| {
                 let show_page = if show_second_page {
                     target_page.clone()
