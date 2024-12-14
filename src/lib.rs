@@ -17,7 +17,7 @@ pub enum TransitionType {
 }
 
 impl TransitionType {
-    fn into_tstransform(&self, amount: f32, origin: Vec2) -> TSTransform {
+    fn generate_tstransform(&self, amount: f32, origin: Vec2) -> TSTransform {
         match self {
             Self::HorizontalMove => TSTransform::from_translation(Vec2::new(amount, 0.)),
             Self::VerticalMove => TSTransform::from_translation(Vec2::new(0., amount)),
@@ -44,7 +44,7 @@ pub fn page_transition<T>(
     } * if invert_direction { 1. } else { -1. };
 
     ui.with_visual_transform(
-        animation_type.into_tstransform(offset_size, Vec2::new(32.0, 32.)),
+        animation_type.generate_tstransform(offset_size, Vec2::new(32.0, 32.)),
         |ui| add_contents(ui, !first_stage),
     )
     .inner
