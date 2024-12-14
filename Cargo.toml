@@ -1,5 +1,5 @@
 [package]
-name = "egui_animated_tabview"
+name = "egui_transition"
 version = "0.1.0"
 edition = "2021"
 

@@ -908,13 +908,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "egui_animated_tabview"
-version = "0.1.0"
-dependencies = [
- "eframe",
-]
-
-[[package]]
 name = "egui_glow"
 version = "0.29.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -929,6 +922,13 @@ dependencies = [
  "wasm-bindgen",
  "web-sys",
  "winit",
+]
+
+[[package]]
+name = "egui_transition"
+version = "0.1.0"
+dependencies = [
+ "eframe",
 ]
 
 [[package]]
