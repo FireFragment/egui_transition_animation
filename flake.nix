@@ -8,7 +8,7 @@
       url = "github:numtide/flake-utils";
       inputs.nixpkgs.follows = "nixkgs";
     };
-    crate2nix.url = "github:nix-community/crate2nix";
+    #crate2nix.url = "github:nix-community/crate2nix";
   };
 
   outputs = {
@@ -28,15 +28,8 @@
           ];
         };
 
-        buildRustCrateForPkgs = pkgs: pkgs.buildRustCrate.override {
-          defaultCrateOverrides = pkgs.defaultCrateOverrides // {
-            rav1e = attrs: {
-              CARGO_ENCODED_RUSTFLAGS = "";
-            };
-          };
-        };
 
-        crate2nix-tools = pkgs.callPackage "${crate2nix}/tools.nix" {};
+        /*crate2nix-tools = pkgs.callPackage "${crate2nix}/tools.nix" {};
 
         generatedCargoNix = crate2nix-tools.generatedCargoNix {
             name = "egui_transition_example";
@@ -44,8 +37,7 @@
         };
 
         cargoNix = pkgs.callPackage "${generatedCargoNix}/default.nix" {
-          inherit buildRustCrateForPkgs;
-        };
+        };*/
 
         # TODO: Is anything superflous here?
         eguiLibs = with pkgs; [
@@ -62,7 +54,7 @@
           pkg-config
         ]);
       in {
-        packages.default = pkgs.symlinkJoin {
+        /*packages.default = pkgs.symlinkJoin {
           name = "egui_transition_example";
           paths = [ cargoNix.rootCrate.build ];
           buildInputs = [ pkgs.makeWrapper ];
@@ -71,7 +63,7 @@
               --suffix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath eguiLibs}
               mv $out/bin/egui_transition $out/bin/egui_transition_example
           '';
-        };
+          };*/
         #;
 
         devShell = pkgs.mkShell rec {

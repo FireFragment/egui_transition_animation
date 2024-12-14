@@ -4,7 +4,7 @@ use std::{
     time::{Duration, Instant},
 };
 
-use eframe::egui::{self, Ui};
+use egui::{self, Ui};
 
 pub fn page_transition<T>(
     ui: &mut Ui,
