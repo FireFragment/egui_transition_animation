@@ -1,4 +1,5 @@
 use std::{
+    default,
     fmt::{self, Display},
     hash::Hash,
     time::{Duration, Instant},
@@ -10,8 +11,9 @@ use egui::{
     Ui, Vec2,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
 pub enum TransitionType {
+    #[default]
     HorizontalMove,
     VerticalMove,
 }
@@ -28,13 +30,12 @@ impl TransitionType {
 pub fn page_transition<T>(
     ui: &mut Ui,
     t: f32,
-    easing: impl Fn(f32) -> f32,
-    animation_type: TransitionType,
+    style: &TransitionStyle,
     invert_direction: bool,
     add_contents: impl FnOnce(&mut Ui, bool) -> T,
 ) -> T {
     let dist = 16.0;
-    let anim_state = easing(t);
+    let anim_state = (style.easing)(t);
     let first_stage = anim_state <= 0.5;
 
     let offset_size = if first_stage {
@@ -44,7 +45,9 @@ pub fn page_transition<T>(
     } * if invert_direction { 1. } else { -1. };
 
     ui.with_visual_transform(
-        animation_type.generate_tstransform(offset_size, Vec2::new(32.0, 32.)),
+        style
+            .t_type
+            .generate_tstransform(offset_size, Vec2::new(32., 32.)),
         |ui| add_contents(ui, !first_stage),
     )
     .inner
@@ -75,29 +78,120 @@ impl<Page: fmt::Debug, Ret> PagerRet<Page, Ret> {
     }
 }
 
-pub fn animated_pager<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
+pub struct TransitionStyle {
+    /// This easing _can_ return values lower than 0 or larget than 1
+    pub easing: fn(f32) -> f32,
+    pub duration: f32,
+    pub t_type: TransitionType,
+}
+
+/// # Constructors
+impl TransitionStyle {
+    /// Create a new [`TransitionStyle`] with default settings and given [type](TransitionType) mostly based on ui [style](egui::Ui::style),
+    /// but values of some fields (eg. [easing](TransitionStyle::easing)) are opinionated and may change slightly
+    /// between versions.
+    pub fn new_with_type(ui: &Ui, t_type: TransitionType) -> Self {
+        TransitionStyle {
+            t_type,
+            ..Self::new(ui)
+        }
+    }
+    /// Create a new [`TransitionStyle`] animated by shifting horizontally
+    ///
+    /// It uses default settings mostly based on the provided ui's [style](egui::Ui::style),
+    /// but values of some fields (eg. [easing](TransitionStyle::easing)) are opinionated and may change slightly
+    /// between versions.
+    pub fn horizontal(ui: &Ui) -> Self {
+        Self::new_with_type(ui, TransitionType::HorizontalMove)
+    }
+    /// Create a new [`TransitionStyle`] animated by shifting vertically
+    ///
+    /// It uses default settings mostly based on the provided ui's [style](egui::Ui::style),
+    /// but values of some fields (eg. [easing](TransitionStyle::easing)) are opinionated and may change slightly
+    /// between versions.
+    pub fn vertical(ui: &Ui) -> Self {
+        Self::new_with_type(ui, TransitionType::VerticalMove)
+    }
+
+    /// Create a new [`TransitionStyle`] with default settings mostly based on ui [style](egui::Ui::style),
+    /// but values of some fields (eg. [easing](TransitionStyle::easing)) are opinionated and may change slightly
+    /// between versions.
+    ///
+    /// You will mostly want to manually specify [transition type](TransitionStyle::t_type), so it's recommended
+    /// to use the [`horizontal`](TransitionStyle::horizontal) or [`vertical`](TransitionStyle::vertical)function instead.
+    pub fn new(ui: &Ui) -> Self {
+        Self::new_with_type(ui, TransitionType::default())
+    }
+}
+/// Shows one of several possible pages with transition animation between them. The animation goes _forward_.
+///
+/// # Parameters
+///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
+///    before actually showing this page
+pub fn animated_pager_forward<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
     ui: &mut Ui,
     target_page: Page,
-    animation_type: TransitionType,
+    style: &TransitionStyle,
     id: egui::Id,
     add_contents: impl FnMut(&mut Ui, Page) -> Ret,
 ) -> PagerRet<Page, Ret> {
-    animated_pager_advanced(
+    animated_pager_with_direction(ui, target_page, style, id, |_, _| true, add_contents)
+}
+
+/// Shows one of several possible pages with transition animation between them. The animation goes _backward_.
+///
+/// # Parameters
+///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
+///    before actually showing this page
+pub fn animated_pager_backward<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
+    ui: &mut Ui,
+    target_page: Page,
+    style: &TransitionStyle,
+    id: egui::Id,
+    add_contents: impl FnMut(&mut Ui, Page) -> Ret,
+) -> PagerRet<Page, Ret> {
+    animated_pager_with_direction(ui, target_page, style, id, |_, _| false, add_contents)
+}
+
+/// Shows one of several possible pages with transition animation between them.
+///
+/// This function requires [`PartialOrd`] of page to determine _direction_ of the animation.
+/// For example, in tabview, you want switching to tab on the right of the current one to be animated by sliding content to the left.
+/// In contrast switching to tab on the left of the current one should be animated by sliding content to the right.
+/// If your page type doesn't implement [`PartialOrd`], use one of [`animated_pager_with_direction`], [`animated_pager_forward`] or [`animated_pager_backward`].
+///
+/// # Parameters
+///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
+///    before actually showing this page
+pub fn animated_pager<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
+    ui: &mut Ui,
+    target_page: Page,
+    style: &TransitionStyle,
+    id: egui::Id,
+    add_contents: impl FnMut(&mut Ui, Page) -> Ret,
+) -> PagerRet<Page, Ret> {
+    animated_pager_with_direction(
         ui,
         target_page,
-        easing::circular_in_out,
-        animation_type,
+        style,
         id,
         |original_page, new_page| original_page < new_page,
         add_contents,
     )
 }
-
-pub fn animated_pager_advanced<Page: Sync + Send + Clone + 'static + Eq, Ret>(
+/// Shows one of several possible pages with transition animation between them.
+///
+/// # Parameters
+///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
+///    before actually showing this page
+///  - `invert_direction`: Function that returns `true` for forward direction of animation and `false` for backward direction of animation.
+///    It takes the original page as the first argument and target page as the second argument.
+///    For example, in tabview, you want switching to tab on the right of the current one to be animated by sliding content to the left.
+///    In contrast switching to tab on the left of the current one should be animated by sliding content to the right.
+pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, Ret>(
     ui: &mut Ui,
     target_page: Page,
-    easing: impl Fn(f32) -> f32,
-    animation_type: TransitionType,
+    style: &TransitionStyle,
     id: egui::Id,
     invert_direction: impl FnOnce(&Page, &Page) -> bool,
     add_contents: impl FnOnce(&mut Ui, Page) -> Ret,
@@ -146,8 +240,7 @@ pub fn animated_pager_advanced<Page: Sync + Send + Clone + 'static + Eq, Ret>(
         return page_transition(
             ui,
             current_animation_state,
-            easing,
-            animation_type,
+            style,
             invert_direction(&prev_page, &target_page),
             |ui, show_second_page| {
                 let show_page = if show_second_page {

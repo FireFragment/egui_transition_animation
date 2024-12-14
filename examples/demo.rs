@@ -3,7 +3,7 @@
 
 use eframe::egui::{self, Ui};
 use egui::{Layout, SelectableLabel, Vec2};
-use egui_page_transition::{animated_pager, TransitionType};
+use egui_page_transition::{animated_pager, TransitionStyle, TransitionType};
 
 fn main() -> eframe::Result {
     env_logger::init();
@@ -85,7 +85,7 @@ impl eframe::App for MyApp {
                         let state_s = animated_pager(
                             ui,
                             self.page.clone(),
-                            self.transition_type.clone(),
+                            &TransitionStyle::new_with_type(ui, self.transition_type.clone()),
                             egui::Id::new("pager"),
                             |ui: &mut Ui, page| match page {
                                 Page::Example => {
