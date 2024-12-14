@@ -100,7 +100,8 @@ impl TransitionStyle {
     pub fn new_with_type(ui: &Ui, t_type: TransitionType) -> Self {
         TransitionStyle {
             t_type,
-            ..Self::new(ui)
+            duration: ui.style().animation_time,
+            easing: easing::circular_in_out,
         }
     }
     /// Create a new [`TransitionStyle`] animated by shifting horizontally
