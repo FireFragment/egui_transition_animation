@@ -10,6 +10,8 @@ jobs:
         steps:
             - uses: actions/checkout@v4
             - uses: DeterminateSystems/nix-installer-action@main
+              with:
+                  extra-conf: "download-buffer-size = 67108864"
             - uses: DeterminateSystems/magic-nix-cache-action@main
             - name: Build
               run: nix build
