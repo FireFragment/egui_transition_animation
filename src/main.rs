@@ -61,7 +61,7 @@ impl eframe::App for MyApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             //let page_2 = ;
             let page = self.page;
-            transition(
+            page_transition(
                 ui,
                 ctx.animate_bool_with_easing(egui::Id::new("page"), page, easing::circular_in_out),
                 |ui: &mut Ui, page| match page {
@@ -111,7 +111,7 @@ pub fn circular_out(t: f32) -> f32 {
     (1. - (t - 1.).powi(2)).sqrt() // 2.0
 }
 
-fn transition(ui: &mut Ui, t: f32, mut add_contents: impl FnMut(&mut Ui, bool)) {
+fn page_transition(ui: &mut Ui, t: f32, mut add_contents: impl FnMut(&mut Ui, bool)) {
     let dist = 16.0;
     if t <= 0.5 {
         let space = -dist * t * 2.;
