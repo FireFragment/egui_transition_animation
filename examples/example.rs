@@ -2,6 +2,8 @@
 #![allow(rustdoc::missing_crate_level_docs)] // it's an example
 
 use eframe::egui::{self, Ui};
+use egui::Layout;
+use egui_transition::TransitionType;
 
 fn main() -> eframe::Result {
     env_logger::init();
@@ -19,14 +21,17 @@ fn main() -> eframe::Result {
 
 #[derive(Debug, Eq, PartialEq, PartialOrd, Clone)]
 enum Page {
-    Page1,
-    Page2,
-    Page3,
+    Home,
+    Configure,
+    About,
 }
 
 struct MyApp {
     name: String,
     age: u32,
+
+    transition_type: TransitionType,
+    animation_time: f32,
     page: Page,
 }
 
@@ -35,7 +40,10 @@ impl Default for MyApp {
         Self {
             name: "Arthur".to_owned(),
             age: 42,
-            page: Page::Page1,
+
+            transition_type: TransitionType::HorizontalMove,
+            animation_time: 0.3,
+            page: Page::Home,
         }
     }
 }
@@ -43,45 +51,83 @@ impl Default for MyApp {
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         ctx.style_mut(|style| {
-            style.animation_time = 0.3;
+            style.animation_time = self.animation_time;
         });
 
         let mut state = None;
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.horizontal(|ui| {
-                ui.selectable_value(&mut self.page, Page::Page1, "Home");
-                ui.selectable_value(&mut self.page, Page::Page2, "Page 2");
-                ui.selectable_value(&mut self.page, Page::Page3, "Page 3");
-            });
+            ui.with_layout(
+                match self.transition_type {
+                    TransitionType::HorizontalMove => Layout::top_down(egui::Align::Min),
+                    TransitionType::VerticalMove => Layout::left_to_right(egui::Align::Min),
+                },
+                |ui| {
+                    ui.with_layout(
+                        match self.transition_type {
+                            TransitionType::HorizontalMove => {
+                                Layout::left_to_right(egui::Align::Min)
+                            }
+                            TransitionType::VerticalMove => Layout::top_down(egui::Align::Min),
+                        },
+                        |ui| {
+                            ui.selectable_value(&mut self.page, Page::Home, "Home");
+                            ui.selectable_value(&mut self.page, Page::Configure, "Configure");
+                            ui.selectable_value(&mut self.page, Page::About, "About");
+                        },
+                    );
+                    ui.vertical(|ui| {
+                        let state_s = egui_transition::animated_pager(
+                            ui,
+                            self.page.clone(),
+                            self.transition_type.clone(),
+                            egui::Id::new("pager"),
+                            |ui: &mut Ui, page| match page {
+                                Page::Home => {
+                                    ui.heading("Home");
+                                    ui.horizontal(|ui| {
+                                        let name_label = ui.label("Your name: ");
+                                        ui.text_edit_singleline(&mut self.name)
+                                            .labelled_by(name_label.id);
+                                    });
+                                    ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
+                                    if ui.button("Increment").clicked() {
+                                        self.age += 1;
+                                    }
+                                    ui.label(format!("Hello '{}', age {}", self.name, self.age));
+                                }
+                                Page::Configure => {
+                                    ui.heading("Configure");
 
-            let state_s = egui_transition::animated_pager(
-                ui,
-                self.page.clone(),
-                egui_transition::TransitionType::HorizontalMove,
-                egui::Id::new("pager"),
-                |ui: &mut Ui, page| match page {
-                    Page::Page1 => {
-                        ui.heading("Page 1");
-                        ui.horizontal(|ui| {
-                            let name_label = ui.label("Your name: ");
-                            ui.text_edit_singleline(&mut self.name)
-                                .labelled_by(name_label.id);
-                        });
-                        ui.add(egui::Slider::new(&mut self.age, 0..=120).text("age"));
-                        if ui.button("Increment").clicked() {
-                            self.age += 1;
-                        }
-                        ui.label(format!("Hello '{}', age {}", self.name, self.age));
-                    }
-                    Page::Page2 => {
-                        ui.label("Hello from the second page");
-                    }
-                    Page::Page3 => {
-                        ui.label("Hello from the third page");
-                    }
+                                    ui.label("Animation type:");
+                                    ui.indent((), |ui| {
+                                        ui.radio_value(
+                                            &mut self.transition_type,
+                                            TransitionType::HorizontalMove,
+                                            "Horizontal",
+                                        );
+                                        ui.radio_value(
+                                            &mut self.transition_type,
+                                            TransitionType::VerticalMove,
+                                            "Vertical",
+                                        );
+                                    });
+
+                                    ui.add(
+                                        egui::Slider::new(&mut self.animation_time, 0.0..=2.0)
+                                            .text("Animation time")
+                                            .suffix("s"),
+                                    );
+                                }
+                                Page::About => {
+                                    ui.heading("About");
+                                    ui.label("Lorem ipsum sir dolor amet");
+                                }
+                            },
+                        );
+                        state = Some(state_s);
+                    });
                 },
             );
-            state = Some(state_s);
         });
 
         egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {

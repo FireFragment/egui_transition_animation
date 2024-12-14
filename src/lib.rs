@@ -10,7 +10,7 @@ use egui::{
     Ui, Vec2,
 };
 
-#[non_exhaustive]
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum TransitionType {
     HorizontalMove,
     VerticalMove,
