@@ -16,7 +16,7 @@
     nixpkgs,
     rust-overlay,
     flake-utils,
-    crate2nix,
+    # crate2nix,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
