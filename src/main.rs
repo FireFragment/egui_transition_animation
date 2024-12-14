@@ -40,12 +40,16 @@ impl eframe::App for MyApp {
             style.animation_time = 0.3;
         });
 
+        let mut state = None;
         egui::CentralPanel::default().show(ctx, |ui| {
             //let page_2 = ;
             let page = self.page;
-            egui_transition::page_transition(
+
+            let state_s = egui_transition::animated_pager(
                 ui,
-                ctx.animate_bool_with_easing(egui::Id::new("page"), page, easing::circular_in_out),
+                page,
+                easing::circular_in_out,
+                egui::Id::new("pager"),
                 |ui: &mut Ui, page| match page {
                     false => {
                         ui.heading("Page 1");
@@ -72,6 +76,11 @@ impl eframe::App for MyApp {
                     }
                 },
             );
+            state = Some(state_s);
+        });
+
+        egui::TopBottomPanel::bottom("bottom_panel").show(ctx, |ui| {
+            state.unwrap().show("bottom_panel_state", ui);
         });
     }
 }
