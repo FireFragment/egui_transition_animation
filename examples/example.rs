@@ -2,14 +2,14 @@
 #![allow(rustdoc::missing_crate_level_docs)] // it's an example
 
 use eframe::egui::{self, Ui};
-use egui::Layout;
+use egui::{Layout, SelectableLabel};
 use egui_transition::TransitionType;
 
 fn main() -> eframe::Result {
     env_logger::init();
 
     let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
+        viewport: egui::ViewportBuilder::default().with_inner_size([512.0, 256.0]),
         ..Default::default()
     };
     eframe::run_native(
@@ -67,12 +67,18 @@ impl eframe::App for MyApp {
                             TransitionType::HorizontalMove => {
                                 Layout::left_to_right(egui::Align::Min)
                             }
-                            TransitionType::VerticalMove => Layout::top_down(egui::Align::Min),
+                            TransitionType::VerticalMove => {
+                                Layout::top_down_justified(egui::Align::Min)
+                            }
                         },
                         |ui| {
-                            ui.selectable_value(&mut self.page, Page::Home, "Home");
-                            ui.selectable_value(&mut self.page, Page::Configure, "Configure");
-                            ui.selectable_value(&mut self.page, Page::About, "About");
+                            if self.transition_type == TransitionType::VerticalMove {
+                                ui.set_max_width(128.0);
+                            }
+
+                            ui.selectable_value(&mut self.page, Page::Home, "🏠 Home");
+                            ui.selectable_value(&mut self.page, Page::Configure, "⛭ Configure");
+                            ui.selectable_value(&mut self.page, Page::About, "ℹ About");
                         },
                     );
                     ui.vertical(|ui| {
