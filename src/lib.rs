@@ -75,7 +75,7 @@ impl<Page: Display, Ret> PagerRet<Page, Ret> {
     }
 }
 
-pub fn animated_pager<Page: Default + Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
+pub fn animated_pager<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
     ui: &mut Ui,
     target_page: Page,
     animation_type: TransitionAnimationType,
@@ -93,7 +93,7 @@ pub fn animated_pager<Page: Default + Sync + Send + Clone + 'static + Eq + Parti
     )
 }
 
-pub fn animated_pager_advanced<Page: Default + Sync + Send + Clone + 'static + Eq, Ret>(
+pub fn animated_pager_advanced<Page: Sync + Send + Clone + 'static + Eq, Ret>(
     ui: &mut Ui,
     target_page: Page,
     easing: impl Fn(f32) -> f32,
@@ -104,13 +104,16 @@ pub fn animated_pager_advanced<Page: Default + Sync + Send + Clone + 'static + E
 ) -> PagerRet<Page, Ret> {
     let animation_length = ui.style().animation_time;
 
-    let prev_page = ui.ctx().memory_mut(|mem| {
-        mem.data
-            .get_persisted_mut_or_insert_with(id.with("pager_current_page"), move || {
-                Page::default()
-            })
-            .to_owned()
-    });
+    let prev_page = {
+        let target_page_cloned = target_page.clone();
+        ui.ctx().memory_mut(|mem| {
+            mem.data
+                .get_persisted_mut_or_insert_with(id.with("pager_current_page"), move || {
+                    target_page_cloned
+                })
+                .to_owned()
+        })
+    };
     let animation_end: Option<Instant> = ui
         .ctx()
         .memory(|mem| mem.data.get_temp(id.with("pager_animation_end")));
