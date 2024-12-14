@@ -97,7 +97,7 @@ pub fn animated_pager_advanced<Page: Default + Sync + Send + Clone + 'static + E
     easing: impl Fn(f32) -> f32,
     animation_type: TransitionAnimationType,
     id: egui::Id,
-    mut add_contents: impl FnMut(&mut Ui, Page) -> Ret,
+    add_contents: impl FnOnce(&mut Ui, Page) -> Ret,
 ) -> PagerRet<Page, Ret> {
     let animation_length = ui.style().animation_time;
 
