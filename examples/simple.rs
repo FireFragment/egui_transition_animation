@@ -12,7 +12,7 @@ fn main() -> eframe::Result {
     let mut page = Page::Page1;
 
     eframe::run_simple_native(
-        "Egui page transition demo",
+        "Egui page transition example",
         Default::default(),
         move |ctx, _frame| {
             ctx.style_mut(|style| style.animation_time = 0.2);
