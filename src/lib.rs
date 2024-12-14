@@ -1,4 +1,4 @@
-use eframe::egui::{Ui};
+use eframe::egui::Ui;
 
 pub fn page_transition(ui: &mut Ui, t: f32, mut add_contents: impl FnMut(&mut Ui, bool)) {
     let dist = 16.0;
