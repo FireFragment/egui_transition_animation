@@ -29,13 +29,13 @@ impl TransitionType {
 
 pub fn page_transition<T>(
     ui: &mut Ui,
-    t: f32,
+    time: f32,
     style: &TransitionStyle,
     invert_direction: bool,
     add_contents: impl FnOnce(&mut Ui, bool) -> T,
 ) -> T {
     let dist = 16.0;
-    let anim_state = (style.easing)(t);
+    let anim_state = (style.easing)(time);
     let first_stage = anim_state <= 0.5;
 
     let offset_size = if first_stage {
