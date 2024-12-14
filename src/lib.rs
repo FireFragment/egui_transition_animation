@@ -11,12 +11,12 @@ use egui::{
 };
 
 #[non_exhaustive]
-pub enum TransitionAnimationType {
+pub enum TransitionType {
     HorizontalMove,
     VerticalMove,
 }
 
-impl TransitionAnimationType {
+impl TransitionType {
     fn into_tstransform(&self, amount: f32, origin: Vec2) -> TSTransform {
         match self {
             Self::HorizontalMove => TSTransform::from_translation(Vec2::new(amount, 0.)),
@@ -29,7 +29,7 @@ pub fn page_transition<T>(
     ui: &mut Ui,
     t: f32,
     easing: impl Fn(f32) -> f32,
-    animation_type: TransitionAnimationType,
+    animation_type: TransitionType,
     invert_direction: bool,
     add_contents: impl FnOnce(&mut Ui, bool) -> T,
 ) -> T {
@@ -78,7 +78,7 @@ impl<Page: fmt::Debug, Ret> PagerRet<Page, Ret> {
 pub fn animated_pager<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
     ui: &mut Ui,
     target_page: Page,
-    animation_type: TransitionAnimationType,
+    animation_type: TransitionType,
     id: egui::Id,
     add_contents: impl FnMut(&mut Ui, Page) -> Ret,
 ) -> PagerRet<Page, Ret> {
@@ -97,7 +97,7 @@ pub fn animated_pager_advanced<Page: Sync + Send + Clone + 'static + Eq, Ret>(
     ui: &mut Ui,
     target_page: Page,
     easing: impl Fn(f32) -> f32,
-    animation_type: TransitionAnimationType,
+    animation_type: TransitionType,
     id: egui::Id,
     invert_direction: impl FnOnce(&Page, &Page) -> bool,
     add_contents: impl FnOnce(&mut Ui, Page) -> Ret,

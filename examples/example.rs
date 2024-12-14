@@ -57,7 +57,7 @@ impl eframe::App for MyApp {
             let state_s = egui_transition::animated_pager(
                 ui,
                 self.page.clone(),
-                egui_transition::TransitionAnimationType::HorizontalMove,
+                egui_transition::TransitionType::HorizontalMove,
                 egui::Id::new("pager"),
                 |ui: &mut Ui, page| match page {
                     Page::Page1 => {
