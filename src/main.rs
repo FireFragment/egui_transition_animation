@@ -1,10 +1,8 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")] // hide console window on Windows in release
 #![allow(rustdoc::missing_crate_level_docs)] // it's an example
 
-use std::time::Duration;
-
 use eframe::{
-    egui::{self, Context, Ui},
+    egui::{self, Ui},
     emath::easing,
 };
 
@@ -16,7 +14,7 @@ fn main() -> eframe::Result {
     eframe::run_native(
         "My egui App",
         options,
-        Box::new(|cc| Ok(Box::<MyApp>::default())),
+        Box::new(|_| Ok(Box::<MyApp>::default())),
     )
 }
 
@@ -32,19 +30,6 @@ impl Default for MyApp {
             name: "Arthur".to_owned(),
             age: 42,
             page: false,
-        }
-    }
-}
-
-fn combine_easings<'a>(
-    ease_in: (impl Fn(f32) -> f32 + 'a),
-    ease_out: (impl Fn(f32) -> f32 + 'a),
-) -> impl Fn(f32) -> f32 + 'a {
-    move |t: f32| {
-        if t > 0.5 {
-            ease_in(t / 2.0)
-        } else {
-            ease_out(0.5 + t / 2.0)
         }
     }
 }
