@@ -76,14 +76,6 @@ impl eframe::App for MyApp {
     }
 }
 
-/// <https://easings.net/#easeOutCirc>
-///
-/// Modeled after shifted quadrant II of unit circle
-#[inline]
-pub fn circular_out(t: f32) -> f32 {
-    (1. - (t - 1.).powi(2)).sqrt() // 2.0
-}
-
 fn page_transition(ui: &mut Ui, t: f32, mut add_contents: impl FnMut(&mut Ui, bool)) {
     let dist = 16.0;
     if t <= 0.5 {
