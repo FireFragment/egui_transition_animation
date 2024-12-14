@@ -1,8 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 use std::{
-    default,
-    fmt::{self, Display},
+    fmt::{self},
     hash::Hash,
     time::{Duration, Instant},
 };

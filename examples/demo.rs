@@ -2,7 +2,7 @@
 #![allow(rustdoc::missing_crate_level_docs)] // it's an example
 
 use eframe::egui::{self, Ui};
-use egui::{Layout, SelectableLabel, Vec2};
+use egui::{Layout, Vec2};
 use egui_page_transition::prelude::*;
 
 fn main() -> eframe::Result {
