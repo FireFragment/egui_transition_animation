@@ -33,7 +33,7 @@ fn main() -> eframe::Result {
                         Page::Page2 => ui.heading("Hello from page 2"),
                         Page::Page3 => ui.monospace("Hello from page 3"),
                     },
-                )
+                );
             });
         },
     )
