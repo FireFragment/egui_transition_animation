@@ -13,6 +13,13 @@ use egui::{
     Ui, Vec2,
 };
 
+pub mod prelude {
+    pub use super::{
+        animated_pager, animated_pager_backward, animated_pager_forward,
+        animated_pager_with_direction, TransitionStyle, TransitionType,
+    };
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
 pub enum TransitionType {
     #[default]
