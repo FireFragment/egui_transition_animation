@@ -8,7 +8,7 @@
       url = "github:numtide/flake-utils";
       inputs.nixpkgs.follows = "nixkgs";
     };
-    #crate2nix.url = "github:nix-community/crate2nix";
+    crate2nix.url = "github:nix-community/crate2nix";
   };
 
   outputs = {
@@ -16,7 +16,7 @@
     nixpkgs,
     rust-overlay,
     flake-utils,
-    # crate2nix,
+    crate2nix,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (
@@ -28,8 +28,7 @@
           ];
         };
 
-
-        /*crate2nix-tools = pkgs.callPackage "${crate2nix}/tools.nix" {};
+        crate2nix-tools = pkgs.callPackage "${crate2nix}/tools.nix" {};
 
         generatedCargoNix = crate2nix-tools.generatedCargoNix {
             name = "egui_transition_example";
@@ -37,7 +36,7 @@
         };
 
         cargoNix = pkgs.callPackage "${generatedCargoNix}/default.nix" {
-        };*/
+        };
 
         # TODO: Is anything superflous here?
         eguiLibs = with pkgs; [
@@ -54,7 +53,11 @@
           pkg-config
         ]);
       in {
-        /*packages.default = pkgs.symlinkJoin {
+        packages.default = cargoNix.rootCrate.build.override {
+            runTests = true;
+        };
+
+        /*pkgs.symlinkJoin {
           name = "egui_transition_example";
           paths = [ cargoNix.rootCrate.build ];
           buildInputs = [ pkgs.makeWrapper ];
