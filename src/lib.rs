@@ -6,14 +6,20 @@ use std::{
 
 use eframe::egui::{self, Ui};
 
-pub fn page_transition<T>(ui: &mut Ui, t: f32, add_contents: impl FnOnce(&mut Ui, bool) -> T) -> T {
+pub fn page_transition<T>(
+    ui: &mut Ui,
+    t: f32,
+    easing: impl Fn(f32) -> f32,
+    add_contents: impl FnOnce(&mut Ui, bool) -> T,
+) -> T {
     let dist = 16.0;
-    if t <= 0.5 {
-        let space = -dist * t * 2.;
+    let anim_state = easing(t);
+    if anim_state <= 0.5 {
+        let space = -dist * anim_state * 2.;
         ui.add_space(space);
         add_contents(ui, false)
     } else {
-        let tf = 2. * t - 1.;
+        let tf = 2. * anim_state - 1.;
         let space = dist + -dist * tf;
         ui.add_space(space);
         add_contents(ui, true)
@@ -92,7 +98,8 @@ pub fn animated_pager<Page: Default + Sync + Send + Clone + 'static + Eq, Ret>(
 
         return page_transition(
             ui,
-            easing(current_animation_state),
+            current_animation_state,
+            easing,
             |ui, show_second_page| {
                 let show_page = if show_second_page {
                     target_page.clone()
