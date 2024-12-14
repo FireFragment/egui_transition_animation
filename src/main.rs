@@ -43,7 +43,7 @@ impl eframe::App for MyApp {
         egui::CentralPanel::default().show(ctx, |ui| {
             //let page_2 = ;
             let page = self.page;
-            page_transition(
+            egui_transition::page_transition(
                 ui,
                 ctx.animate_bool_with_easing(egui::Id::new("page"), page, easing::circular_in_out),
                 |ui: &mut Ui, page| match page {
@@ -73,19 +73,5 @@ impl eframe::App for MyApp {
                 },
             );
         });
-    }
-}
-
-fn page_transition(ui: &mut Ui, t: f32, mut add_contents: impl FnMut(&mut Ui, bool)) {
-    let dist = 16.0;
-    if t <= 0.5 {
-        let space = -dist * t * 2.;
-        ui.add_space(space);
-        add_contents(ui, false);
-    } else {
-        let tf = 2. * t - 1.;
-        let space = dist + -dist * tf;
-        ui.add_space(space);
-        add_contents(ui, true);
     }
 }
