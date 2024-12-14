@@ -27,6 +27,11 @@ impl TransitionType {
     }
 }
 
+// TODO: Document
+/// The transition animation used by [`animated_pager`]. This
+///
+/// # Parameters
+///  - `time` - Should be between `0.0` and `1.0`
 pub fn page_transition<T>(
     ui: &mut Ui,
     time: f32,
