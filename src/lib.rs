@@ -96,9 +96,14 @@ impl<Page: fmt::Debug, Ret> PagerRet<Page, Ret> {
 /// You will typically wanto to construct it with
 /// [`horizontal`](TransitionStyle::horizontal) or [`vertical`](TransitionStyle::vertical).
 pub struct TransitionStyle {
-    /// This easing _can_ return values lower than 0 or larget than 1
+    /// This easing _can_ return values lower than 0 or larget than 1,
+    /// eg. [`egui::easing::back_in_out`].
+    ///
+    /// Should be an in+out easing.
     pub easing: fn(f32) -> f32,
+    /// Animation duration in seconds
     pub duration: f32,
+    /// _What_ will actually be animated, how the animation should look like
     pub t_type: TransitionType,
     /// How much should [ui](egui::Ui) move during the animation
     pub amount: f32,
