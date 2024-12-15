@@ -46,14 +46,13 @@ pub fn page_transition<T>(
     invert_direction: bool,
     add_contents: impl FnOnce(&mut Ui, bool) -> T,
 ) -> T {
-    let dist = 16.0;
     let anim_state = (style.easing)(time);
     let first_stage = anim_state <= 0.5;
 
     let offset_size = if first_stage {
-        -dist * anim_state * 2.
+        -style.amount * anim_state * 2.
     } else {
-        dist + -dist * (2. * anim_state - 1.)
+        style.amount + -style.amount * (2. * anim_state - 1.)
     } * if invert_direction { 1. } else { -1. };
 
     ui.with_visual_transform(
@@ -95,6 +94,8 @@ pub struct TransitionStyle {
     pub easing: fn(f32) -> f32,
     pub duration: f32,
     pub t_type: TransitionType,
+    /// How much should [ui](egui::Ui) move during the animation
+    pub amount: f32,
 }
 
 /// # Constructors
@@ -107,6 +108,7 @@ impl TransitionStyle {
             t_type,
             duration: ui.style().animation_time,
             easing: easing::circular_in_out,
+            amount: 16.0,
         }
     }
     /// Create a new [`TransitionStyle`] animated by shifting horizontally
