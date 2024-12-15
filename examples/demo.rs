@@ -2,7 +2,7 @@
 #![allow(rustdoc::missing_crate_level_docs)] // it's an example
 
 use eframe::egui::{self, Ui};
-use egui::{Layout, Vec2};
+use egui::{emath::easing, Layout, Vec2};
 use egui_page_transition::prelude::*;
 
 fn main() -> eframe::Result {
@@ -26,11 +26,19 @@ enum Page {
     Example,
 }
 
+#[derive(PartialEq)]
+enum Easing {
+    Circular,
+    Back,
+}
+
 struct MyApp {
     name: String,
     age: u32,
 
+    transition_amount: u8,
     transition_type: TransitionType,
+    easing: Easing,
     animation_time: f32,
     page: Page,
 }
@@ -41,7 +49,9 @@ impl Default for MyApp {
             name: "Arthur".to_owned(),
             age: 42,
 
+            transition_amount: 16,
             transition_type: TransitionType::HorizontalMove,
+            easing: Easing::Circular,
             animation_time: 0.3,
             page: Page::About,
         }
@@ -85,7 +95,14 @@ impl eframe::App for MyApp {
                         let state_s = animated_pager(
                             ui,
                             self.page.clone(),
-                            &TransitionStyle::new_with_type(ui, self.transition_type.clone()),
+                            &TransitionStyle {
+                                easing: match self.easing {
+                                    Easing::Back => easing::back_in_out,
+                                    Easing::Circular => easing::cubic_in_out
+                                },
+                                amount: self.transition_amount as f32,
+                                ..TransitionStyle::new_with_type(ui, self.transition_type.clone())
+                            },
                             egui::Id::new("pager"),
                             |ui: &mut Ui, page| match page {
                                 Page::Example => {
@@ -105,25 +122,45 @@ impl eframe::App for MyApp {
                                 Page::Configure => {
                                     ui.heading("Configure");
 
-                                    ui.label("Animation type:");
-                                    ui.indent((), |ui| {
-                                        ui.radio_value(
-                                            &mut self.transition_type,
-                                            TransitionType::HorizontalMove,
-                                            "Horizontal",
+                                    egui::Grid::new("configure_grid").num_columns(2).show(ui, |ui| {
+                                        ui.strong("Animation type: \n");
+                                        ui.vertical(|ui| {
+                                            ui.radio_value(
+                                                &mut self.transition_type,
+                                                TransitionType::HorizontalMove,
+                                                "Horizontal",
+                                            );
+                                            ui.radio_value(
+                                                &mut self.transition_type,
+                                                TransitionType::VerticalMove,
+                                                "Vertical",
+                                            );
+                                        });
+
+                                        ui.end_row();
+
+                                        ui.strong("Easing: ");
+                                        ui.horizontal(|ui| {
+                                            ui.selectable_value(&mut self.easing, Easing::Circular, "Circular");
+                                            ui.selectable_value(&mut self.easing, Easing::Back, "Back (overshoot)");
+                                        });
+
+                                        ui.end_row();
+
+                                        ui.strong("Animation time: ");
+                                        ui.add(
+                                            egui::Slider::new(&mut self.animation_time, 0.0..=2.0)
+                                                .suffix("s"),
                                         );
-                                        ui.radio_value(
-                                            &mut self.transition_type,
-                                            TransitionType::VerticalMove,
-                                            "Vertical",
+
+                                        ui.end_row();
+
+                                        ui.strong("Amount of animation: ");
+                                        ui.add(
+                                            egui::Slider::new(&mut self.transition_amount, 0..=64)
                                         );
                                     });
 
-                                    ui.add(
-                                        egui::Slider::new(&mut self.animation_time, 0.0..=2.0)
-                                            .text("Animation time")
-                                            .suffix("s"),
-                                    );
                                 }
                                 Page::About => {
                                     ui.heading("About");
