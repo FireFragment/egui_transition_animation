@@ -174,9 +174,10 @@ impl eframe::App for MyApp {
                                             self.page = Page::Example;
                                         };
                                         ui.label(". Animation speed has been decreased to let you see the transitions better. You can customize it in ");
-                                        if ui.link("the Configure pages").clicked() {
+                                        if ui.link("the Configure page").clicked() {
                                             self.page = Page::Configure;
                                         }
+                                        ui.label(".");
                                     });
 
                                     ui.add_space(8.0);
