@@ -1,4 +1,4 @@
-#![doc = include_str!("../README.md")]
+#![doc = include_str!("../docs/main.md")]
 
 use egui::{
     self,
