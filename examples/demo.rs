@@ -88,7 +88,7 @@ impl eframe::App for MyApp {
 
                             ui.selectable_value(&mut self.page, Page::About, "ℹ About");
                             ui.selectable_value(&mut self.page, Page::Configure, "⛭ Configure");
-                            ui.selectable_value(&mut self.page, Page::Example, "☺ Example tab");
+                            ui.selectable_value(&mut self.page, Page::Example, "☺ Example page");
                         },
                     );
                     ui.vertical(|ui| {
@@ -169,12 +169,12 @@ impl eframe::App for MyApp {
 
                                         ui.label("Welcome to the ");
                                         ui.monospace(env!("CARGO_PKG_NAME"));
-                                        ui.label(" demo. See the transitions by switching tabs in the bar above or click this button to ");
-                                        if ui.small_button("Go to the Example tab").clicked() {
+                                        ui.label(" demo. See the transitions by switching pages in the bar above or click this button to ");
+                                        if ui.small_button("Go to the Example page").clicked() {
                                             self.page = Page::Example;
                                         };
                                         ui.label(". Animation speed has been decreased to let you see the transitions better. You can customize it in ");
-                                        if ui.link("the Configure tab").clicked() {
+                                        if ui.link("the Configure pages").clicked() {
                                             self.page = Page::Configure;
                                         }
                                     });
