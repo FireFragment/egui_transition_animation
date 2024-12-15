@@ -18,6 +18,7 @@ pub mod prelude {
     };
 }
 
+/// See [`TransitionStyle::t_type`]
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
 pub enum TransitionType {
     /// The animated ui will be moved horizontally
