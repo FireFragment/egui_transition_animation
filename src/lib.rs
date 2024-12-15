@@ -1,15 +1,14 @@
 #![doc = include_str!("../README.md")]
 
-use std::{
-    fmt::{self},
-    hash::Hash,
-    time::{Duration, Instant},
-};
-
 use egui::{
     self,
     emath::{easing, TSTransform},
     Ui, Vec2,
+};
+use std::{
+    fmt::{self},
+    hash::Hash,
+    time::{Duration, Instant},
 };
 
 pub mod prelude {
