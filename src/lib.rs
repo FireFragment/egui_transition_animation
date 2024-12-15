@@ -154,7 +154,7 @@ impl TransitionStyle {
 /// # Parameters
 ///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
 ///    before actually showing this page.
-///  - `add_contents`: Function that shows given `Page` in a [`Ui`](egui::Ui).
+///  - `add_contents`: Function that shows given `Page` in a [`Ui`].
 ///    The `Page` argument of this function may differ from the provided `target_page` if an animation is running.
 pub fn animated_pager_forward<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
     ui: &mut Ui,
@@ -171,7 +171,7 @@ pub fn animated_pager_forward<Page: Sync + Send + Clone + 'static + Eq + Partial
 /// # Parameters
 ///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
 ///    before actually showing this page.
-///  - `add_contents`: Function that shows given `Page` in a [`Ui`](egui::Ui).
+///  - `add_contents`: Function that shows given `Page` in a [`Ui`].
 ///    The `Page` argument of this function may differ from the provided `target_page` if an animation is running.
 pub fn animated_pager_backward<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
     ui: &mut Ui,
@@ -193,7 +193,7 @@ pub fn animated_pager_backward<Page: Sync + Send + Clone + 'static + Eq + Partia
 /// # Parameters
 ///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
 ///    before actually showing this page.
-///  - `add_contents`: Function that shows given `Page` in a [`Ui`](egui::Ui).
+///  - `add_contents`: Function that shows given `Page` in a [`Ui`].
 ///    The `Page` argument of this function may differ from the provided `target_page` if an animation is running.
 pub fn animated_pager<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
     ui: &mut Ui,
@@ -222,7 +222,7 @@ pub fn animated_pager<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret
 ///    In contrast switching to tab on the left of the current one should be animated by sliding content to the right.
 ///
 ///    If you want the animation to always run in the same direction, use [`animated_pager_forward`] or [`animated_pager_backward`].
-///  - `add_contents`: Function that shows given `Page` in a [`Ui`](egui::Ui).
+///  - `add_contents`: Function that shows given `Page` in a [`Ui`].
 ///    The `Page` argument of this function may differ from the provided `target_page` if an animation is running.
 pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, Ret>(
     ui: &mut Ui,
