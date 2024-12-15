@@ -2,6 +2,8 @@
 
 This crate allows you to have animated transitions between multiple "pages" in [egui](https://github.com/emilk/egui)
 
+[egui_transition.webm](https://github.com/user-attachments/assets/26fec04d-9b03-4cd5-8504-9ca0b5b85fc9)
+
 ### Quickstart
 
 ```rust
