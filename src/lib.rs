@@ -97,7 +97,7 @@ impl<Page: fmt::Debug, Ret> PagerRet<Page, Ret> {
 /// [`horizontal`](TransitionStyle::horizontal) or [`vertical`](TransitionStyle::vertical).
 pub struct TransitionStyle {
     /// This easing _can_ return values lower than 0 or larget than 1,
-    /// eg. [`egui::easing::back_in_out`].
+    /// eg. [`easings::back_in_out`](egui::emath::easing::back_in_out).
     ///
     /// Should be an in+out easing.
     pub easing: fn(f32) -> f32,
