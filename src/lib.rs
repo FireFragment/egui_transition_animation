@@ -93,7 +93,7 @@ impl<Page: fmt::Debug, Ret> PagerRet<Page, Ret> {
 
 /// Style of a transition.
 ///
-/// You will typically wanto to construct it with
+/// You will typically want to construct it with
 /// [`horizontal`](TransitionStyle::horizontal) or [`vertical`](TransitionStyle::vertical).
 pub struct TransitionStyle {
     /// This easing _can_ return values lower than 0 or larget than 1,
