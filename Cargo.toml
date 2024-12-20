@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["FireFragment"]
 description = "Easy animated transitions between multiple pages in egui"
 repository = "https://github.com/FireFragment/egui_transition_animation"
+license = "GPL-3.0-or-later"
 
 [dev-dependencies]
 eframe = "0.29.1"
