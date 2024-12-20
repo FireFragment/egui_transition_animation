@@ -1,12 +1,15 @@
+# TODO: Consider naming it egui_animated_pager
 [package]
-name = "egui_page_transition"
+name = "egui_transition_animation"
 version = "0.1.0"
 edition = "2021"
+authors = ["FireFragment"]
+description = "Easy animated transitions between multiple pages in egui"
+repository = "https://github.com/FireFragment/egui_page_transition"
 
 [dev-dependencies]
 eframe = "0.29.1"
 env_logger = "0.11.5"
-
 
 [dependencies]
 egui = "0.29.1"

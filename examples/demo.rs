@@ -3,7 +3,7 @@
 
 use eframe::egui::{self, Ui};
 use egui::{emath::easing, Layout, Vec2};
-use egui_page_transition::prelude::*;
+use egui_transition_animation::prelude::*;
 
 fn main() -> eframe::Result {
     env_logger::init();
@@ -13,7 +13,7 @@ fn main() -> eframe::Result {
         ..Default::default()
     };
     eframe::run_native(
-        "Egui page transition demo",
+        "Egui transition animation demo",
         options,
         Box::new(|_| Ok(Box::<MyApp>::default())),
     )

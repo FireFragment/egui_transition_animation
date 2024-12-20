@@ -1,5 +1,5 @@
 {
-  description = "Egui transition";
+  description = "Egui transition animation";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";

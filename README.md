@@ -1,4 +1,4 @@
-# Egui page transition
+# Egui transition animation
 
 This crate allows you to have animated transitions between multiple "pages" in [egui](https://github.com/emilk/egui)
 
@@ -21,7 +21,7 @@ fn main() -> eframe::Result {
     let mut page = Page::Page1;
 
     eframe::run_simple_native(
-        "Egui page transition example",
+        "Egui transition animation example",
         Default::default(),
         move |ctx, _frame| {
             ctx.style_mut(|style| style.animation_time = 0.2);
