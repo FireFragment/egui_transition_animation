@@ -1,4 +1,3 @@
-# TODO: Consider naming it egui_animated_pager
 [package]
 name = "egui_transition_animation"
 version = "0.1.0"
