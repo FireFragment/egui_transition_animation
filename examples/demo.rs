@@ -185,7 +185,7 @@ impl eframe::App for MyApp {
                                     ui.strong("Learn more: ");
                                     if ui.link(" GitHub").clicked() {
                                         ctx.open_url(egui::OpenUrl {
-                                            url: String::from("https://github.com/FireFragment/egui_page_transition"),
+                                            url: String::from("https://github.com/FireFragment/egui_transition_animation"),
                                             new_tab: true
                                         });
                                     }

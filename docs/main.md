@@ -9,7 +9,7 @@ See [the README](https://github.com/FireFragment/egui_transition_animation/blob/
 
 ```rust
 use eframe::egui;
-use egui_page_transition::prelude::*;
+use egui_transition_animation::prelude::*;
 
 #[derive(PartialEq, PartialOrd, Clone, Eq)]
 enum Page {

@@ -9,7 +9,7 @@ This crate allows you to have animated transitions between multiple "pages" in [
 ```rust
 fn main() -> eframe::Result {
     use eframe::egui;
-    use egui_page_transition::prelude::*;
+    use egui_transition_animation::prelude::*;
 
     #[derive(PartialEq, PartialOrd, Clone, Eq)]
     enum Page {
