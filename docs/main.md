@@ -3,6 +3,8 @@
 This crate allows you to have animated transitions between multiple "pages" in [egui](https://github.com/emilk/egui). \
 You will mostly use the [`animated_pager`] function.
 
+See [the README](https://github.com/FireFragment/egui_transition_animation/blob/development/README.md) for a video of the animations.
+
 ### Quickstart
 
 ```rust
