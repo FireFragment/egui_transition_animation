@@ -1,6 +1,8 @@
 # Egui transition animation
 
-This crate allows you to have animated transitions between multiple "pages" in [egui](https://github.com/emilk/egui)
+This crate allows you to have animated transitions between multiple "pages" in [egui](https://github.com/emilk/egui).
+
+[crates.io](https://crates.io/crates/egui_transition_animation) | [docs.rs](https://docs.rs/egui_transition_animation/0.1.1/egui_transition_animation/) | [lib.rs](https://lib.rs/crates/egui_transition_animation) | [GitHub](https://github.com/FireFragment/egui_transition_animation)
 
 [egui_transition.webm](https://github.com/user-attachments/assets/26fec04d-9b03-4cd5-8504-9ca0b5b85fc9)
 
