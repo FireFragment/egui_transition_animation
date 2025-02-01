@@ -12,24 +12,36 @@ use std::{
 };
 
 pub mod prelude {
+    //! Re-exports of the most commonly used types and functions.
     pub use super::{
         animated_pager, animated_pager_backward, animated_pager_forward,
         animated_pager_with_direction, TransitionStyle, TransitionType,
     };
 }
 
-/// See [`TransitionStyle::t_type`]
+/// Type of transition animation.
+///
+/// Specifies the direction of the animation.
+///
+/// Used in [`TransitionStyle::t_type`].
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
 pub enum TransitionType {
-    /// The animated ui will be moved horizontally
+    /// The animated UI will move horizontally.
     #[default]
     HorizontalMove,
-    /// The animated ui will be moved vertically
+    /// The animated UI will move vertically.
     VerticalMove,
 }
 
 impl TransitionType {
-    fn generate_tstransform(&self, amount: f32, origin: Vec2) -> TSTransform {
+    /// Generates the [`TSTransform`] based on the transition type and animation amount.
+    ///
+    /// This function is used internally by [`page_transition`] to apply the transformation to the UI.
+    ///
+    /// # Parameters
+    /// - `amount`: The amount of translation to apply. Positive values move in one direction, negative in the opposite.
+    /// - `origin`: Currently unused. Intended for future extensions where the origin of transformation might be customizable.
+    fn generate_tstransform(&self, amount: f32, _origin: Vec2) -> TSTransform {
         match self {
             Self::HorizontalMove => TSTransform::from_translation(Vec2::new(amount, 0.)),
             Self::VerticalMove => TSTransform::from_translation(Vec2::new(0., amount)),
@@ -37,11 +49,19 @@ impl TransitionType {
     }
 }
 
-// TODO: Document
-/// The transition animation used by [`animated_pager`].
+/// Applies a page transition animation to the given UI contents.
+///
+/// This is the core animation function used by [`animated_pager`] family of functions.
+/// It handles the visual transformation of the UI based on the animation `time` and [`TransitionStyle`].
 ///
 /// # Parameters
-///  - `time` - Should be between `0.0` and `1.0`
+/// - `ui`: The current [`Ui`] context.
+/// - `time`: The current animation time, ranging from `0.0` (start) to `1.0` (end).
+/// - `style`: The [`TransitionStyle`] defining the animation parameters.
+/// - `invert_direction`: If `true`, inverts the direction of the animation. Useful for backward transitions.
+/// - `add_contents`: A closure that adds the UI contents to be animated.
+///                   It takes the [`Ui`] and a `bool` indicating if this is the "second stage" of the animation.
+///                   The "second stage" is when the animation is past 50% and the new content starts becoming fully visible.
 pub fn page_transition<T>(
     ui: &mut Ui,
     time: f32,
@@ -52,6 +72,9 @@ pub fn page_transition<T>(
     let anim_state = (style.easing)(time);
     let first_stage = anim_state <= 0.5;
 
+    // Calculate the offset based on the animation state and style.
+    // In the first stage (0-0.5), the old page moves out.
+    // In the second stage (0.5-1), the new page moves in.
     let offset_size = if first_stage {
         -style.amount * anim_state * 2.
     } else {
@@ -61,28 +84,50 @@ pub fn page_transition<T>(
     ui.with_visual_transform(
         style
             .t_type
-            .generate_tstransform(offset_size, Vec2::new(32., 32.)),
-        |ui| add_contents(ui, !first_stage),
+            .generate_tstransform(offset_size, Vec2::new(32., 32.)), // Origin is currently unused.
+        |ui| add_contents(ui, !first_stage), // `!first_stage` indicates the "second stage"
     )
-    .inner
+        .inner
 }
 
+/// Return type of the [`animated_pager`] family of functions.
+///
+/// Provides information about the current state of the pager,
+/// including the currently displayed page, the UI return value from the page content function,
+/// and whether an animation is currently running.
 pub struct PagerRet<Page, Ret> {
+    /// The page that is currently actually shown in the UI.
+    ///
+    /// This may be different from the "target" page when an animation is in progress.
     pub real_page: Page,
+    /// The return value from the `add_contents` function for the currently displayed page.
     pub ui_ret: Ret,
+    /// Indicates whether a page transition animation is currently running.
     pub animation_running: bool,
 }
 
 impl<Page: fmt::Debug, Ret> PagerRet<Page, Ret> {
-    /// Omits the `ui_ret` field
+    /// Shows debug information about the pager in a simple grid.
+    ///
+    /// Omits the `ui_ret` field from the displayed information.
+    ///
+    /// # Parameters
+    /// - `id`: A unique [`Hash`]able ID for the grid.
+    /// - `ui`: The current [`Ui`] context.
     pub fn show(&self, id: impl Hash, ui: &mut Ui) {
         egui::Grid::new(id).num_columns(2).show(ui, |ui| {
             self.show_in_grid(ui);
         });
     }
-    /// Omits the `ui_ret` field
+
+    /// Shows debug information about the pager in a grid, without using a specific [`egui::Grid`] ID.
+    ///
+    /// Omits the `ui_ret` field from the displayed information.
+    ///
+    /// This is useful when you want to embed the debug info within an existing grid.
     pub fn show_in_grid(&self, ui: &mut Ui) {
-        ui.strong("Real page: ").on_hover_text("The page that is currently actually shown. May be different from the \"target\" page when there's animation running");
+        ui.strong("Real page: ")
+            .on_hover_text("The page that is currently actually shown. May be different from the \"target\" page when there's animation running");
         ui.monospace(format!("{:?}", self.real_page));
         ui.end_row();
 
@@ -92,71 +137,169 @@ impl<Page: fmt::Debug, Ret> PagerRet<Page, Ret> {
     }
 }
 
-/// Style of a transition.
+/// Defines the style of the transition animation used by [`animated_pager`].
 ///
-/// You will typically want to construct it with
-/// [`horizontal`](TransitionStyle::horizontal) or [`vertical`](TransitionStyle::vertical).
+/// Use the constructor functions like [`TransitionStyle::horizontal`] or [`TransitionStyle::vertical`]
+/// to create instances with sensible defaults.
 pub struct TransitionStyle {
-    /// This easing _can_ return values lower than 0 or larget than 1,
-    /// eg. [`easings::back_in_out`](egui::emath::easing::back_in_out).
+    /// Easing function to control the animation progress over time.
     ///
-    /// Should be an in+out easing.
+    /// This should be an in-out easing function for smooth transitions.
+    /// It _can_ return values outside the `0.0..=1.0` range,
+    /// for example, [`easing::back_in_out`](egui::emath::easing::back_in_out) can create an overshoot effect.
+    ///
+    /// Should be an in+out easing for best visual results.
     pub easing: fn(f32) -> f32,
-    /// Animation duration in seconds
+    /// Duration of the animation in seconds.
     pub duration: f32,
-    /// _What_ will actually be animated, how the animation should look like
+    /// Type of transition to apply, e.g., horizontal or vertical movement.
     pub t_type: TransitionType,
-    /// How much should [ui](egui::Ui) move during the animation
+    /// The amount of movement during the animation.
+    ///
+    /// This value determines how far the UI elements will slide during the transition.
     pub amount: f32,
 }
 
-/// # Constructors
+/// # Constructors for [`TransitionStyle`]
 impl TransitionStyle {
-    /// Create a new [`TransitionStyle`] with default settings and given [type](TransitionType) mostly based on ui [style](egui::Ui::style),
-    /// but values of some fields (eg. [easing](TransitionStyle::easing)) are opinionated and may change slightly
-    /// between versions.
+    /// Creates a new [`TransitionStyle`] with default settings and the given [type](TransitionType).
+    ///
+    /// Default settings are mostly based on the current UI [style](egui::Ui::style),
+    /// but some fields (e.g., [easing](TransitionStyle::easing)) are opinionated and may change slightly
+    /// between versions to provide a good default animation.
+    ///
+    /// # Parameters
+    /// - `ui`: The current [`Ui`] context, used to derive default style settings.
+    /// - `t_type`: The [`TransitionType`] for the animation (horizontal or vertical).
     pub fn new_with_type(ui: &Ui, t_type: TransitionType) -> Self {
         TransitionStyle {
             t_type,
-            duration: ui.style().animation_time,
-            easing: easing::circular_in_out,
-            amount: 16.0,
+            duration: ui.style().animation_time, // Default animation time from egui style
+            easing: easing::circular_in_out,    // Opinionated default easing function
+            amount: 16.0,                       // Opinionated default animation amount
         }
     }
-    /// Create a new [`TransitionStyle`] animated by shifting horizontally.
+
+    /// Creates a new [`TransitionStyle`] for horizontal page transitions.
     ///
-    /// It uses default settings mostly based on the provided ui's [style](egui::Ui::style),
-    /// but values of some fields (eg. [easing](TransitionStyle::easing)) are opinionated and may change slightly
-    /// between versions.
+    /// Uses default settings based on the provided UI's [style](egui::Ui::style),
+    /// with horizontal movement as the transition type.
+    ///
+    /// # Parameters
+    /// - `ui`: The current [`Ui`] context, used to derive default style settings.
     pub fn horizontal(ui: &Ui) -> Self {
         Self::new_with_type(ui, TransitionType::HorizontalMove)
     }
-    /// Create a new [`TransitionStyle`] animated by shifting vertically.
+
+    /// Creates a new [`TransitionStyle`] for vertical page transitions.
     ///
-    /// It uses default settings mostly based on the provided ui's [style](egui::Ui::style),
-    /// but values of some fields (eg. [easing](TransitionStyle::easing)) are opinionated and may change slightly
-    /// between versions.
+    /// Uses default settings based on the provided UI's [style](egui::Ui::style),
+    /// with vertical movement as the transition type.
+    ///
+    /// # Parameters
+    /// - `ui`: The current [`Ui`] context, used to derive default style settings.
     pub fn vertical(ui: &Ui) -> Self {
         Self::new_with_type(ui, TransitionType::VerticalMove)
     }
 
-    /// Create a new [`TransitionStyle`] with default settings mostly based on ui [style](egui::Ui::style),
-    /// but values of some fields (eg. [easing](TransitionStyle::easing)) are opinionated and may change slightly
-    /// between versions.
+    /// Creates a new [`TransitionStyle`] with default settings and [`TransitionType::HorizontalMove`].
     ///
-    /// You will mostly want to manually specify [transition type](TransitionStyle::t_type), so it's recommended
-    /// to use the [`horizontal`](TransitionStyle::horizontal) or [`vertical`](TransitionStyle::vertical)function instead.
+    /// It is generally recommended to use [`TransitionStyle::horizontal`] or [`TransitionStyle::vertical`]
+    /// to explicitly specify the transition type, improving code clarity.
+    ///
+    /// # Parameters
+    /// - `ui`: The current [`Ui`] context, used to derive default style settings.
     pub fn new(ui: &Ui) -> Self {
         Self::new_with_type(ui, TransitionType::default())
     }
 }
-/// Shows one of several possible pages with transition animation between them. The animation goes _forward_.
+
+/// Shows one of several possible pages with a forward transition animation.
+///
+/// When the `target_page` changes, a forward animation will be triggered to transition to the new page.
+/// "Forward" animation direction is determined by the provided `invert_direction` closure in [`animated_pager_with_direction`].
+/// In `animated_pager_forward`, the direction is always considered "forward".
 ///
 /// # Parameters
-///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
-///    before actually showing this page.
-///  - `add_contents`: Function that shows given `Page` in a [`Ui`].
-///    The `Page` argument of this function may differ from the provided `target_page` if an animation is running.
+/// - `ui`: The current [`Ui`] context.
+/// - `target_page`: The page to show. When this changes, the animation starts.
+/// - `style`: The [`TransitionStyle`] to use for the animation.
+/// - `id`: A unique [`egui::Id`] to persist pager state (current page, animation state).
+/// - `add_contents`: A closure that renders the UI for a given `Page`.
+///                   The `Page` argument may be the `target_page` or the `prev_page` during animation.
+///
+/// # Returns
+/// A [`PagerRet`] containing information about the current pager state.
+///
+/// # Example
+/// ```rust,no_run
+/// use egui::{Context, CentralPanel};
+/// use egui_animated_pager::prelude::*;
+///
+/// #[derive(Clone, PartialEq, Eq, Debug)]
+/// enum Page {
+///     First,
+///     Second,
+/// }
+///
+/// fn main() {
+///     let native_options = eframe::NativeOptions::default();
+///     eframe::run_native(
+///         "Animated Pager Example",
+///         native_options,
+///         Box::new(|cc| Box::new(MyApp::new(cc))),
+///     ).unwrap();
+/// }
+///
+/// struct MyApp {
+///     current_page: Page,
+/// }
+///
+/// impl MyApp {
+///     fn new(_cc: &eframe::CreationContext<'_>) -> Self {
+///         Self {
+///             current_page: Page::First,
+///         }
+///     }
+/// }
+///
+/// impl eframe::App for MyApp {
+///     fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
+///         CentralPanel::default().show(ctx, |ui| {
+///             let pager_id = egui::Id::new("my_pager");
+///             let style = TransitionStyle::horizontal(ui);
+///
+///             ui.horizontal(|ui| {
+///                 if ui.button("First Page").clicked() {
+///                     self.current_page = Page::First;
+///                 }
+///                 if ui.button("Second Page").clicked() {
+///                     self.current_page = Page::Second;
+///                 }
+///             });
+///
+///             let pager_ret = animated_pager_forward(
+///                 ui,
+///                 self.current_page.clone(),
+///                 &style,
+///                 pager_id,
+///                 |ui, page| {
+///                     match page {
+///                         Page::First => {
+///                             ui.label("This is the first page.");
+///                         }
+///                         Page::Second => {
+///                             ui.label("This is the second page.");
+///                         }
+///                     }
+///                 },
+///             );
+///
+///             pager_ret.show(pager_id.with("debug"), ui); // Optional debug info
+///         });
+///     }
+/// }
+/// ```
 pub fn animated_pager_forward<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
     ui: &mut Ui,
     target_page: Page,
@@ -167,13 +310,22 @@ pub fn animated_pager_forward<Page: Sync + Send + Clone + 'static + Eq + Partial
     animated_pager_with_direction(ui, target_page, style, id, |_, _| true, add_contents)
 }
 
-/// Shows one of several possible pages with transition animation between them. The animation goes _backward_.
+/// Shows one of several possible pages with a backward transition animation.
+///
+/// When the `target_page` changes, a backward animation will be triggered to transition to the new page.
+/// "Backward" animation direction is determined by the provided `invert_direction` closure in [`animated_pager_with_direction`].
+/// In `animated_pager_backward`, the direction is always considered "backward".
 ///
 /// # Parameters
-///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
-///    before actually showing this page.
-///  - `add_contents`: Function that shows given `Page` in a [`Ui`].
-///    The `Page` argument of this function may differ from the provided `target_page` if an animation is running.
+/// - `ui`: The current [`Ui`] context.
+/// - `target_page`: The page to show. When this changes, the animation starts.
+/// - `style`: The [`TransitionStyle`] to use for the animation.
+/// - `id`: A unique [`egui::Id`] to persist pager state (current page, animation state).
+/// - `add_contents`: A closure that renders the UI for a given `Page`.
+///                   The `Page` argument may be the `target_page` or the `prev_page` during animation.
+///
+/// # Returns
+/// A [`PagerRet`] containing information about the current pager state.
 pub fn animated_pager_backward<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
     ui: &mut Ui,
     target_page: Page,
@@ -184,18 +336,25 @@ pub fn animated_pager_backward<Page: Sync + Send + Clone + 'static + Eq + Partia
     animated_pager_with_direction(ui, target_page, style, id, |_, _| false, add_contents)
 }
 
-/// Shows one of several possible pages with transition animation between them.
+/// Shows one of several possible pages with transition animation between them, automatically determining direction.
 ///
-/// This function requires `page` to implement [`PartialOrd`] in order to determine _direction_ of the animation.
-/// For example, in tabview, you want switching to tab on the right of the current one to be animated by sliding content to the left.
-/// In contrast switching to tab on the left of the current one should be animated by sliding content to the right.
-/// If your page type doesn't implement [`PartialOrd`], use one of [`animated_pager_with_direction`], [`animated_pager_forward`] or [`animated_pager_backward`].
+/// This function requires `Page` to implement [`PartialOrd`] to determine the animation direction.
+/// If `target_page` is "greater than" the `original_page` (persisted from the last frame), the animation is forward.
+/// Otherwise, it is backward.
+///
+/// If your page type doesn't implement [`PartialOrd`], use [`animated_pager_with_direction`],
+/// [`animated_pager_forward`] or [`animated_pager_backward`] to explicitly control the direction.
 ///
 /// # Parameters
-///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
-///    before actually showing this page.
-///  - `add_contents`: Function that shows given `Page` in a [`Ui`].
-///    The `Page` argument of this function may differ from the provided `target_page` if an animation is running.
+/// - `ui`: The current [`Ui`] context.
+/// - `target_page`: The page to show. When this changes, the animation starts.
+/// - `style`: The [`TransitionStyle`] to use for the animation.
+/// - `id`: A unique [`egui::Id`] to persist pager state (current page, animation state).
+/// - `add_contents`: A closure that renders the UI for a given `Page`.
+///                   The `Page` argument may be the `target_page` or the `prev_page` during animation.
+///
+/// # Returns
+/// A [`PagerRet`] containing information about the current pager state.
 pub fn animated_pager<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret>(
     ui: &mut Ui,
     target_page: Page,
@@ -208,23 +367,30 @@ pub fn animated_pager<Page: Sync + Send + Clone + 'static + Eq + PartialOrd, Ret
         target_page,
         style,
         id,
-        |original_page, new_page| original_page < new_page,
+        |original_page, new_page| original_page < new_page, // Determine direction based on PartialOrd
         add_contents,
     )
 }
-/// Shows one of several possible pages with transition animation between them.
+
+/// Shows one of several possible pages with transition animation between them, with explicit direction control.
+///
+/// This is the most flexible version of the animated pager, allowing you to define the animation direction
+/// using the `invert_direction` closure.
 ///
 /// # Parameters
-///  - `target_page`: Page to show. When changed, it will take some time for the pager to play animation
-///    before actually showing this page.
-///  - `invert_direction`: Function that returns `true` for forward direction of animation and `false` for backward direction of animation.
-///    It takes the original page as the first argument and target page as the second argument.
-///    For example, in tabview, you want switching to tab on the right of the current one to be animated by sliding content to the left.
-///    In contrast switching to tab on the left of the current one should be animated by sliding content to the right.
+/// - `ui`: The current [`Ui`] context.
+/// - `target_page`: The page to show. When this changes, the animation starts.
+/// - `style`: The [`TransitionStyle`] to use for the animation.
+/// - `id`: A unique [`egui::Id`] to persist pager state (current page, animation state).
+/// - `invert_direction`: A closure that determines the animation direction.
+///                       It takes the `original_page` (previous page) and `new_page` (target page) as arguments.
+///                       It should return `true` for "forward" animation direction and `false` for "backward" direction.
+///                       For example, in a tab view, switching to a tab on the right might be considered "forward".
+/// - `add_contents`: A closure that renders the UI for a given `Page`.
+///                   The `Page` argument may be the `target_page` or the `prev_page` during animation.
 ///
-///    If you want the animation to always run in the same direction, use [`animated_pager_forward`] or [`animated_pager_backward`].
-///  - `add_contents`: Function that shows given `Page` in a [`Ui`].
-///    The `Page` argument of this function may differ from the provided `target_page` if an animation is running.
+/// # Returns
+/// A [`PagerRet`] containing information about the current pager state.
 pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, Ret>(
     ui: &mut Ui,
     target_page: Page,
@@ -235,6 +401,7 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
 ) -> PagerRet<Page, Ret> {
     let animation_length = style.duration;
 
+    // Retrieve the previously shown page from memory, or use the target page as initial page.
     let prev_page = {
         let target_page_cloned = target_page.clone();
         ui.ctx().memory_mut(|mem| {
@@ -245,6 +412,7 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
                 .to_owned()
         })
     };
+    // Retrieve the animation end time from temporary memory, if animation is running.
     let animation_end: Option<Instant> = ui
         .ctx()
         .memory(|mem| mem.data.get_temp(id.with("pager_animation_end")));
@@ -253,37 +421,43 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
     if let Some(animation_end) = animation_end {
         let now = Instant::now();
 
-        // 0 means we are at the beggining of animation, 1 means we are at the end, .5 means we are at the middle etc.
+        // Calculate the current animation state (0.0 to 1.0).
+        // 0 means animation start, 1 means animation end.
         let current_animation_state = 1. - ((animation_end - now).as_secs_f32() / animation_length);
 
-        // If the animation is done, finish it by setting memory values and display the target page
+        // If the animation is done (or past the end due to frame timing issues), finish it.
         if current_animation_state >= 1. {
             ui.ctx().memory_mut(|mem| {
+                // Update the persisted current page to the target page.
                 mem.data
                     .insert_persisted(id.with("pager_current_page"), target_page.clone());
+                // Remove the animation end time from temporary memory, stopping the animation.
                 mem.data.remove::<Instant>(id.with("pager_animation_end"));
             });
 
+            // Render the target page content without animation.
             let ui_ret = add_contents(ui, target_page.clone());
             return PagerRet {
                 real_page: target_page,
                 ui_ret,
-                animation_running: false,
+                animation_running: false, // Animation is no longer running.
             };
         }
 
-        ui.ctx().request_repaint();
+        ui.ctx().request_repaint(); // Request repaint to continue animation in the next frame.
 
+        // Apply page transition animation using `page_transition` function.
         return page_transition(
             ui,
             current_animation_state,
             style,
-            invert_direction(&prev_page, &target_page),
+            invert_direction(&prev_page, &target_page), // Determine animation direction.
             |ui, show_second_page| {
+                // Render either the previous page or the target page depending on the animation stage.
                 let show_page = if show_second_page {
-                    target_page.clone()
+                    target_page.clone() // Show target page in the second stage of animation.
                 } else {
-                    prev_page.clone()
+                    prev_page.clone()   // Show previous page in the first stage of animation.
                 };
                 let ui_ret = add_contents(ui, show_page);
                 PagerRet {
@@ -293,38 +467,40 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
                         prev_page.clone()
                     },
                     ui_ret,
-                    animation_running: true,
+                    animation_running: true, // Animation is still running.
                 }
             },
         );
     };
 
-    // If pages have changed, but animation isn't running...
+    // If pages have changed and animation isn't running...
     if prev_page != target_page {
-        // ...start the animation
+        // ...start the animation.
         ui.ctx().memory_mut(|mem| {
+            // Store the animation end time in temporary memory.
             mem.data.insert_temp(
                 id.with("pager_animation_end"),
                 Instant::now() + Duration::from_millis((animation_length * 1000.0) as u64),
             )
         });
 
+        // Initially show the previous page (before animation starts).
         let ui_ret = add_contents(ui, prev_page.clone());
-        ui.ctx().request_repaint();
+        ui.ctx().request_repaint(); // Request repaint to start animation in the next frame.
 
         return PagerRet {
             real_page: prev_page,
             ui_ret,
-            animation_running: true,
+            animation_running: true, // Animation has just started.
         };
     }
 
-    // If nothing happens right now, just show the page
+    // If pages haven't changed and no animation is running, just show the target page.
     // It doesn't matter whether we show `target_page` or `prev_page`, because they are the same.
     let ui_ret = add_contents(ui, target_page);
     PagerRet {
         real_page: prev_page,
         ui_ret,
-        animation_running: false,
+        animation_running: false, // No animation is running.
     }
 }
