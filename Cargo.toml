@@ -1,6 +1,6 @@
 [package]
 name = "egui_transition_animation"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["FireFragment"]
 description = "Easy animated transitions between multiple pages in egui"
@@ -10,8 +10,8 @@ keywords = ["egui", "animation", "transition", "ui", "gui"]
 categories = ["gui"]
 
 [dev-dependencies]
-eframe = "0.29.1"
-env_logger = "0.11.5"
+eframe = "0.30.0"
+env_logger = "0.11.6"
 
 [dependencies]
-egui = "0.29.1"
+egui = "0.30.0"

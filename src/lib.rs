@@ -233,7 +233,7 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
     invert_direction: impl FnOnce(&Page, &Page) -> bool,
     add_contents: impl FnOnce(&mut Ui, Page) -> Ret,
 ) -> PagerRet<Page, Ret> {
-    let animation_length = ui.style().animation_time;
+    let animation_length = style.duration;
 
     let prev_page = {
         let target_page_cloned = target_page.clone();
