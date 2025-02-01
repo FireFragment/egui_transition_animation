@@ -50,3 +50,7 @@ fn main() -> eframe::Result {
     )
 }
 ```
+
+### Contributing
+
+Contributions are welcome. Please don't forget to make PRs against the `development` branch not `release`.
