@@ -216,9 +216,7 @@ impl TransitionStyle {
 
 /// Shows one of several possible pages with a forward transition animation.
 ///
-/// When the `target_page` changes, a forward animation will be triggered to transition to the new page.
-/// "Forward" animation direction is determined by the provided `invert_direction` closure in [`animated_pager_with_direction`].
-/// In `animated_pager_forward`, the direction is always considered "forward".
+/// When the `target_page` changes, a "forward" animation will be triggered to transition to the new page.
 ///
 /// # Parameters
 /// - `ui`: The current [`Ui`] context.
