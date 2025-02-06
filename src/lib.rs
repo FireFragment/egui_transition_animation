@@ -40,7 +40,7 @@ impl TransitionType {
     ///
     /// # Parameters
     /// - `amount`: The amount of translation to apply. Positive values move in one direction, negative in the opposite.
-    /// - `origin`: Currently unused. Intended for future extensions where the origin of transformation might be customizable.
+    /// - `origin`: Currently unused. Intended for potentially adding `TransitionType::Scale` in future where origin of the scale transformation effect will be needed.
     fn generate_tstransform(&self, amount: f32, _origin: Vec2) -> TSTransform {
         match self {
             Self::HorizontalMove => TSTransform::from_translation(Vec2::new(amount, 0.)),
