@@ -58,7 +58,7 @@ impl TransitionType {
 /// - `ui`: The current [`Ui`] context.
 /// - `time`: The current animation time, ranging from `0.0` (start) to `1.0` (end).
 /// - `style`: The [`TransitionStyle`] defining the animation parameters.
-/// - `invert_direction`: If `true`, inverts the direction of the animation. Useful for backward transitions.
+/// - `invert_direction`: If `true`, the animation goes "backwards" (ie. if transition type is [`TransitionType::HorizontalMove`], this decides whether the animation goes left or right).
 /// - `add_contents`: A closure that adds the UI contents to be animated.
 ///                   It takes the [`Ui`] and a `bool` indicating if this is the "second stage" of the animation.
 ///                   The "second stage" is when the animation is past 50% and the new content starts becoming fully visible.
