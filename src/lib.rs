@@ -310,9 +310,7 @@ pub fn animated_pager_forward<Page: Sync + Send + Clone + 'static + Eq + Partial
 
 /// Shows one of several possible pages with a backward transition animation.
 ///
-/// When the `target_page` changes, a backward animation will be triggered to transition to the new page.
-/// "Backward" animation direction is determined by the provided `invert_direction` closure in [`animated_pager_with_direction`].
-/// In `animated_pager_backward`, the direction is always considered "backward".
+/// When the `target_page` changes, a "backward" animation will be triggered to transition to the new page.
 ///
 /// # Parameters
 /// - `ui`: The current [`Ui`] context.
