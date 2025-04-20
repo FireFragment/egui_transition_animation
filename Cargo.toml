@@ -1,2 +1,2 @@
 [workspace]
-members = ["transition_animation","demo"]
+members = ["transition_animation","demo","animated_selectable_value"]
