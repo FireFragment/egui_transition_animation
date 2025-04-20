@@ -22,21 +22,21 @@ fn main() -> eframe::Result {
                 ui.add_space(100.0);
 
                 ui.horizontal(|ui| {
-                    selectable_value(ui, 0, &mut page, Page::Page1, "Page 1");
-                    selectable_value(ui, 0, &mut page, Page::Page2, "Page 2 aaaaaaaaaa");
-                    selectable_value(ui, 0, &mut page, Page::Page3, "Page 3");
-                    selectable_value(ui, 0, &mut page, Page::Page4, "Page 4");
+                    animated_selectable_value(ui, 0, &mut page, Page::Page1, "Page 1");
+                    animated_selectable_value(ui, 0, &mut page, Page::Page2, "Page 2 aaaaaaaaaa");
+                    animated_selectable_value(ui, 0, &mut page, Page::Page3, "Page 3");
+                    animated_selectable_value(ui, 0, &mut page, Page::Page4, "Page 4");
                 });
 
                 ui.add_space(32.0);
 
                 ui.horizontal(|ui| {
-                    selectable_value(ui, 1, &mut page_2, Page::Page1, "Page 1");
-                    selectable_value(ui, 1, &mut page_2, Page::Page2, "Page 2 aaaaaaaaaa");
+                    animated_selectable_value(ui, 1, &mut page_2, Page::Page1, "Page 1");
+                    animated_selectable_value(ui, 1, &mut page_2, Page::Page2, "Page 2 aaaaaaaaaa");
                 });
                 ui.horizontal(|ui| {
-                    selectable_value(ui, 1, &mut page_2, Page::Page3, "Page 3");
-                    selectable_value(ui, 1, &mut page_2, Page::Page4, "Page 4");
+                    animated_selectable_value(ui, 1, &mut page_2, Page::Page3, "Page 3");
+                    animated_selectable_value(ui, 1, &mut page_2, Page::Page4, "Page 4");
                 });
             });
         },

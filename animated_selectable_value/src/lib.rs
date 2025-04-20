@@ -1,16 +1,16 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
 
 use egui::{
-    emath::easing, epaint, Button, Color32, CornerRadius, Id, LayerId, Order, Pos2, Rect, Shape,
-    Stroke, UiBuilder, Vec2,
+    emath::easing, epaint, Button, Color32, CornerRadius, Id, LayerId, Order, Pos2, Rect, RichText,
+    Shape, Stroke, UiBuilder, Vec2,
 };
 use egui_animation::animate_eased;
 
 pub mod prelude {
-    pub use super::selectable_value;
+    pub use super::animated_selectable_value;
 }
 
-pub fn selectable_value<T: Eq>(
+pub fn animated_selectable_value<T: Eq>(
     ui: &mut egui::Ui,
     group_id: impl Hash,
     current_value: &mut T,
@@ -30,12 +30,16 @@ pub fn selectable_value<T: Eq>(
     let frame_shape_id = ui.painter().add(Shape::Noop);
 
     let label_response = ui.add(
-        Button::new(text)
-            .selected(selected)
-            // Enable frame to have padding, but disable border and fill, because we draw our own frame
-            .frame(true)
-            .fill(Color32::TRANSPARENT)
-            .stroke(Stroke::NONE),
+        Button::new(if selected {
+            RichText::new(text).color(ui.visuals().selection.stroke.color)
+        } else {
+            RichText::new(text)
+        })
+        .selected(selected)
+        // Enable frame to have padding, but disable border and fill, because we draw our own frame
+        .frame(true)
+        .fill(Color32::TRANSPARENT)
+        .stroke(Stroke::NONE),
     );
     let rect = label_response.rect;
 
@@ -52,7 +56,7 @@ pub fn selectable_value<T: Eq>(
                     ui.ctx(),
                     Id::new(group_id),
                     rect,
-                    0.2,
+                    ui.style().animation_time,
                 )),
         );
     }
