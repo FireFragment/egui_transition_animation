@@ -968,6 +968,7 @@ name = "egui_animated_tabview_demo"
 version = "0.0.0"
 dependencies = [
  "eframe",
+ "egui_animated_selectable_value",
  "egui_transition_animation",
  "env_logger",
 ]

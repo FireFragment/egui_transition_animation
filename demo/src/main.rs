@@ -3,6 +3,7 @@
 
 use eframe::egui::{self, Ui};
 use egui::{emath::easing, Layout, Vec2};
+use egui_animated_selectable_value::prelude::*;
 use egui_transition_animation::prelude::*;
 
 fn main() -> eframe::Result {
@@ -41,6 +42,7 @@ struct MyApp {
     easing: Easing,
     animation_time: f32,
     page: Page,
+    selectable_value_showcase: bool,
 }
 
 impl Default for MyApp {
@@ -54,6 +56,7 @@ impl Default for MyApp {
             easing: Easing::Circular,
             animation_time: 0.3,
             page: Page::About,
+            selectable_value_showcase: true,
         }
     }
 }
@@ -86,9 +89,15 @@ impl eframe::App for MyApp {
                                 ui.set_max_width(128.0);
                             }
 
-                            ui.selectable_value(&mut self.page, Page::About, "ℹ About");
-                            ui.selectable_value(&mut self.page, Page::Configure, "⛭ Configure");
-                            ui.selectable_value(&mut self.page, Page::Example, "☺ Example page");
+                            if self.selectable_value_showcase {
+                                animated_selectable_value(ui, 0, &mut self.page, Page::About, "ℹ About");
+                                animated_selectable_value(ui, 0, &mut self.page, Page::Configure, "⛭ Configure");
+                                animated_selectable_value(ui, 0, &mut self.page, Page::Example, "☺ Example page");
+                            } else {
+                                ui.selectable_value(&mut self.page, Page::About, "ℹ About");
+                                ui.selectable_value(&mut self.page, Page::Configure, "⛭ Configure");
+                                ui.selectable_value(&mut self.page, Page::Example, "☺ Example page");
+                            }
                         },
                     );
                     ui.vertical(|ui| {
@@ -160,7 +169,7 @@ impl eframe::App for MyApp {
                                             egui::Slider::new(&mut self.transition_amount, 0..=64)
                                         );
                                     });
-
+                                    ui.checkbox(&mut self.selectable_value_showcase, "Use animation for tabs");
                                 }
                                 Page::About => {
                                     ui.heading("About");
