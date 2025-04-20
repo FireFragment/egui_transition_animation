@@ -53,21 +53,17 @@
           pkg-config
         ]);
       in {
-        packages.default = cargoNix.rootCrate.build.override {
-            runTests = true;
-        };
 
-        /*pkgs.symlinkJoin {
-          name = "egui_transition_example";
-          paths = [ cargoNix.rootCrate.build ];
+        packages.default = pkgs.symlinkJoin {
+          name = "egui_animated_tabview_demo";
+          paths = [ cargoNix.workspaceMembers.egui_animated_tabview_demo.build ];
           buildInputs = [ pkgs.makeWrapper ];
           postBuild = ''
-            wrapProgram $out/bin/egui_transition_animation \
+            wrapProgram $out/bin/egui_animated_tabview_demo \
               --suffix LD_LIBRARY_PATH : ${pkgs.lib.makeLibraryPath eguiLibs}
-              mv $out/bin/egui_transition_animation $out/bin/egui_transition_example
+              mv $out/bin/egui_animated_tabview_demo $out/bin/egui_animated_tabview_demo
           '';
-          };*/
-        #;
+        };
 
         devShell = pkgs.mkShell rec {
           nativeBuildInputs = [
