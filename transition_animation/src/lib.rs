@@ -401,6 +401,10 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
     // Here to prevent division by zero later on.
     if animation_length == 0.0 {
         let ui_ret = add_contents(ui, target_page.clone());
+        ui.ctx().memory_mut(|mem| {
+            mem.data
+                .insert_persisted(id.with("pager_current_page"), target_page.clone());
+        });
         return PagerRet {
             real_page: target_page,
             ui_ret,
