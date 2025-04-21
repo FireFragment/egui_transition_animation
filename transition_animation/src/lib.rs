@@ -397,6 +397,17 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
 ) -> PagerRet<Page, Ret> {
     let animation_length = style.duration;
 
+    // If there's no animation, just render the target page.
+    // Here to prevent division by zero later on.
+    if animation_length == 0.0 {
+        let ui_ret = add_contents(ui, target_page.clone());
+        return PagerRet {
+            real_page: target_page,
+            ui_ret,
+            animation_running: false, // No animation is running.
+        };
+    }
+
     // Retrieve the previously shown page from memory, or use the target page as initial page.
     let prev_page = {
         let target_page_cloned = target_page.clone();
