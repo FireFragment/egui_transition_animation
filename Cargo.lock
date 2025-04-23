@@ -955,7 +955,7 @@ dependencies = [
 
 [[package]]
 name = "egui_animated_selectable_value"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "eframe",
  "egui",
