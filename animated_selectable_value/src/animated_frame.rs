@@ -1,3 +1,7 @@
+//! More low-level api for creating a frame switching position from behind another frame
+//!
+//! Not yet documented
+
 use crate::*;
 use egui::{layers::ShapeIdx, InnerResponse, Response, Shape, Ui};
 use std::hash::Hash;
@@ -34,6 +38,7 @@ mod frame_painter {
     }
 }
 
+/// _Not yet documented_
 #[derive(Debug, Clone)]
 pub struct AnimatedFrame<FP: FramePainter> {
     frame_painter: FP,
@@ -62,8 +67,8 @@ impl<FP: FramePainter> AnimatedFrame<FP> {
     }
 }
 
-/// Typically created with [`AnimatedWidgetFrame::begin`].
-/// See [`AnimatedWidgetFrame`] for tutorials on how to use this struct.
+/// Typically created with [`AnimatedFrame::begin`].
+/// See [`AnimatedFrame`] for more information.
 pub struct State<FP: FramePainter> {
     frame_painter: FP,
     frame_shape_id: ShapeIdx,

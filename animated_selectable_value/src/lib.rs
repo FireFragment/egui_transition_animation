@@ -1,3 +1,10 @@
+//! **This crate is in alpha, not yet intended for production use. Some parts of documentation are missing for now**
+//!
+//! This crate lets you easily create selectable values similiar to the [ones built into egui](egui::Ui::selectable_value),
+//! but animated.
+//!
+//! You will most often use the [`begin_animated_selectable_value`] function to create a selectable value. See its docs for quickstart
+
 use std::hash::Hash;
 
 use egui::{emath::easing, Button, Color32, Id, Pos2, Rect, RichText, Shape, Stroke, WidgetText};
