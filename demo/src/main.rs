@@ -90,9 +90,10 @@ impl eframe::App for MyApp {
                             }
 
                             if self.selectable_value_showcase {
-                                animated_selectable_value(ui, 0, &mut self.page, Page::About, "ℹ About");
-                                animated_selectable_value(ui, 0, &mut self.page, Page::Configure, "⛭ Configure");
-                                animated_selectable_value(ui, 0, &mut self.page, Page::Example, "☺ Example page");
+                                let mut tabs = begin_animated_selectable_value(ui, "main_tab_bar", Default::default(), &mut self.page);
+                                tabs.value(ui, Page::About, "ℹ About");
+                                tabs.value(ui, Page::Configure, "⛭ Configure");
+                                tabs.value(ui, Page::Example, "☺ Example page");
                             } else {
                                 ui.selectable_value(&mut self.page, Page::About, "ℹ About");
                                 ui.selectable_value(&mut self.page, Page::Configure, "⛭ Configure");
