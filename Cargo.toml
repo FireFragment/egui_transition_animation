@@ -10,8 +10,8 @@ keywords = ["egui", "animation", "transition", "ui", "gui"]
 categories = ["gui"]
 
 [dev-dependencies]
-eframe = "0.31.0"
+eframe = "0.32.0"
 env_logger = "0.11.6"
 
 [dependencies]
-egui = "0.31.0"
+egui = "0.32.0"
