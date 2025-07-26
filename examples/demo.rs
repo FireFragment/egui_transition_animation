@@ -40,6 +40,7 @@ struct MyApp {
     transition_type: TransitionType,
     easing: Easing,
     animation_time: f32,
+    fade: bool,
     page: Page,
 }
 
@@ -53,6 +54,7 @@ impl Default for MyApp {
             transition_type: TransitionType::HorizontalMove,
             easing: Easing::Circular,
             animation_time: 0.3,
+            fade: false,
             page: Page::About,
         }
     }
@@ -101,6 +103,7 @@ impl eframe::App for MyApp {
                                     Easing::Circular => easing::cubic_in_out
                                 },
                                 amount: self.transition_amount as f32,
+                                fade: self.fade,
                                 ..TransitionStyle::new_with_type(ui, self.transition_type.clone())
                             },
                             egui::Id::new("pager"),
@@ -159,6 +162,13 @@ impl eframe::App for MyApp {
                                         ui.add(
                                             egui::Slider::new(&mut self.transition_amount, 0..=64)
                                         );
+
+                                        ui.end_row();
+
+                                        ui.strong("Fade: ");
+                                        ui.add(egui::Checkbox::without_text(&mut self.fade));
+
+                                        ui.end_row();
                                     });
 
                                 }
