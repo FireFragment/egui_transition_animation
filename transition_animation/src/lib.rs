@@ -530,19 +530,19 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
         let ui_ret = add_contents(ui, prev_page.clone());
         ui.ctx().request_repaint(); // Request repaint to start animation in the next frame.
 
-        return PagerRet {
+        PagerRet {
             real_page: prev_page,
             ui_ret,
             animation_running: true, // Animation has just started.
-        };
-    }
-
-    // If pages haven't changed and no animation is running, just show the target page.
-    // It doesn't matter whether we show `target_page` or `prev_page`, because they are the same.
-    let ui_ret = add_contents(ui, target_page);
-    PagerRet {
-        real_page: prev_page,
-        ui_ret,
-        animation_running: false, // No animation is running.
+        }
+    } else {
+        // If pages haven't changed and no animation is running, just show the target page.
+        // It doesn't matter whether we show `target_page` or `prev_page`, because they are the same.
+        let ui_ret = add_contents(ui, target_page);
+        PagerRet {
+            real_page: prev_page,
+            ui_ret,
+            animation_running: false, // No animation is running.
+        }
     }
 }
