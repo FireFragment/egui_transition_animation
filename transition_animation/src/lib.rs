@@ -468,7 +468,7 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
         // 0 means animation start, 1 means animation end.
         let current_animation_state = 1. - ((animation_end - now).as_secs_f32() / animation_length);
 
-        // If the animation is done (or past the end due to frame timing issues), finish it.
+        // If the animation is done, finish it.
         if current_animation_state >= 1. {
             ui.ctx().memory_mut(|mem| {
                 // Update the persisted current page to the target page.
