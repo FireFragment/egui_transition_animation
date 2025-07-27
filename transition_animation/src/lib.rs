@@ -489,7 +489,6 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
 
         ui.ctx().request_repaint(); // Request repaint to continue animation in the next frame.
 
-        // Apply page transition animation using `page_transition` function.
         return page_transition(
             ui,
             current_animation_state,
