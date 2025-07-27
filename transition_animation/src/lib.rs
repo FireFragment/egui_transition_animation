@@ -96,7 +96,7 @@ pub fn page_transition<T>(
             .generate_tstransform(offset_size, Vec2::new(32., 32.)), // Origin is currently unused.
         |ui| add_contents(ui, !first_stage), // `!first_stage` indicates the "second stage"
     )
-        .inner
+    .inner
 }
 
 /// Return type of the [`animated_pager`] family of functions.
@@ -186,8 +186,8 @@ impl TransitionStyle {
         TransitionStyle {
             t_type,
             duration: ui.style().animation_time, // Default animation time from egui style
-            easing: easing::circular_in_out,    // Opinionated default easing function
-            amount: 16.0,                       // Opinionated default animation amount
+            easing: easing::circular_in_out,     // Opinionated default easing function
+            amount: 16.0,                        // Opinionated default animation amount
             fade: false,
         }
     }
@@ -471,7 +471,7 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
                 let show_page = if show_second_page {
                     target_page.clone() // Show target page in the second stage of animation.
                 } else {
-                    prev_page.clone()   // Show previous page in the first stage of animation.
+                    prev_page.clone() // Show previous page in the first stage of animation.
                 };
                 let ui_ret = add_contents(ui, show_page);
                 PagerRet {
