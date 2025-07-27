@@ -214,6 +214,20 @@ impl TransitionStyle {
         Self::new_with_type(ui, TransitionType::VerticalMove)
     }
 
+    /// Creates a new [`TransitionStyle`] for page transitions without any movement, just with a fade out/fade in effect.
+    ///
+    /// Uses default settings based on the provided UI's [style](egui::Ui::style).
+    ///
+    /// # Parameters
+    /// - `ui`: The current [`Ui`] context, used to derive default style settings.
+    pub fn fade(ui: &Ui) -> Self {
+        Self {
+            fade: true,
+            amount: 0.0,
+            ..Self::new(ui)
+        }
+    }
+
     /// Creates a new [`TransitionStyle`] with default settings and [`TransitionType::HorizontalMove`].
     ///
     /// It is generally recommended to use [`TransitionStyle::horizontal`] or [`TransitionStyle::vertical`]
