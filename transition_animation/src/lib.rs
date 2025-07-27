@@ -81,13 +81,22 @@ pub fn page_transition<T>(
         style.amount + -style.amount * (2. * anim_state - 1.)
     } * if invert_direction { 1. } else { -1. };
 
+    if style.fade {
+        let opacity = if first_stage {
+            (1.0 - anim_state * 2.0).max(0.0)
+        } else {
+            ((anim_state - 0.5) * 2.0).min(1.0)
+        };
+        ui.set_opacity(opacity);
+    }
+
     ui.with_visual_transform(
         style
             .t_type
             .generate_tstransform(offset_size, Vec2::new(32., 32.)), // Origin is currently unused.
         |ui| add_contents(ui, !first_stage), // `!first_stage` indicates the "second stage"
     )
-        .inner
+    .inner
 }
 
 /// Return type of the [`animated_pager`] family of functions.
@@ -158,6 +167,8 @@ pub struct TransitionStyle {
     ///
     /// This value determines how far the UI elements will slide during the transition.
     pub amount: f32,
+    /// Indicates whether to apply a fade out/in between pages.
+    pub fade: bool,
 }
 
 /// # Constructors for [`TransitionStyle`]
@@ -175,8 +186,9 @@ impl TransitionStyle {
         TransitionStyle {
             t_type,
             duration: ui.style().animation_time, // Default animation time from egui style
-            easing: easing::circular_in_out,    // Opinionated default easing function
-            amount: 16.0,                       // Opinionated default animation amount
+            easing: easing::circular_in_out,     // Opinionated default easing function
+            amount: 16.0,                        // Opinionated default animation amount
+            fade: false,
         }
     }
 
@@ -202,6 +214,20 @@ impl TransitionStyle {
         Self::new_with_type(ui, TransitionType::VerticalMove)
     }
 
+    /// Creates a new [`TransitionStyle`] for page transitions without any movement, just with a fade out/fade in effect.
+    ///
+    /// Uses default settings based on the provided UI's [style](egui::Ui::style).
+    ///
+    /// # Parameters
+    /// - `ui`: The current [`Ui`] context, used to derive default style settings.
+    pub fn fade(ui: &Ui) -> Self {
+        Self {
+            fade: true,
+            amount: 0.0,
+            ..Self::new(ui)
+        }
+    }
+
     /// Creates a new [`TransitionStyle`] with default settings and [`TransitionType::HorizontalMove`].
     ///
     /// It is generally recommended to use [`TransitionStyle::horizontal`] or [`TransitionStyle::vertical`]
@@ -211,6 +237,12 @@ impl TransitionStyle {
     /// - `ui`: The current [`Ui`] context, used to derive default style settings.
     pub fn new(ui: &Ui) -> Self {
         Self::new_with_type(ui, TransitionType::default())
+    }
+
+    /// Enables fading between pages for the given [`TransitionStyle`].
+    pub fn with_fade(mut self) -> Self {
+        self.fade = true;
+        self
     }
 }
 
@@ -468,7 +500,7 @@ pub fn animated_pager_with_direction<Page: Sync + Send + Clone + 'static + Eq, R
                 let show_page = if show_second_page {
                     target_page.clone() // Show target page in the second stage of animation.
                 } else {
-                    prev_page.clone()   // Show previous page in the first stage of animation.
+                    prev_page.clone() // Show previous page in the first stage of animation.
                 };
                 let ui_ret = add_contents(ui, show_page);
                 PagerRet {
