@@ -1,2 +1,3 @@
 [workspace]
 members = ["transition_animation","demo"]
+license = "MIT"

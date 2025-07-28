@@ -5,7 +5,7 @@ edition = "2024"
 authors = ["FireFragment"]
 description = "Easy animated transitions between multiple pages in egui"
 repository = "https://github.com/FireFragment/egui_transition_animation"
-license = "GPL-3.0-or-later"
+license.workspace = true
 keywords = ["egui", "animation", "transition", "ui", "gui"]
 categories = ["gui"]
 
