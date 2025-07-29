@@ -1,3 +1,5 @@
 [workspace]
 members = ["transition_animation","demo"]
+
+[workspace.package]
 license = "MIT"
