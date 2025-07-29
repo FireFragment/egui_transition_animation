@@ -1,6 +1,6 @@
 [package]
 name = "egui_transition_animation"
-version = "0.1.5"
+version = "0.1.6"
 edition = "2024"
 authors = ["FireFragment"]
 description = "Easy animated transitions between multiple pages in egui"
